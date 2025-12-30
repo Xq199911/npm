@@ -1,0 +1,1352 @@
+[
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.993661073296588,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.993661073296588,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.993661073296588,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.503661073296588,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.503661073296588,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.503661073296588,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.2586610732965881,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.2586610732965881,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.2586610732965881,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.11166107329658811,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.11166107329658811,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.11166107329658811,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.06266107329658811,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.06266107329658811,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.06266107329658811,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.038161073296588105,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.038161073296588105,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.038161073296588105,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.023461073296588107,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.023461073296588107,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.023461073296588107,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.018561073296588106,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.018561073296588106,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.018561073296588106,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.014641073296588107,
+    "method": "No Compression",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.014641073296588107,
+    "method": "No Compression",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.014641073296588107,
+    "method": "No Compression",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.8757568219977027,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.8757568219977027,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.8757568219977027,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.42575682199770265,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.42575682199770265,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.42575682199770265,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.20075682199770264,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.20075682199770264,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.20075682199770264,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.06575682199770265,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.06575682199770265,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.06575682199770265,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.02075682199770264,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.02075682199770264,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.02075682199770264,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "Random Eviction",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.9357118153017794,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.9357118153017794,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.9357118153017794,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.48142249342043425,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.48142249342043425,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.48142249342043425,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.24821181530177946,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.24821181530177946,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.24821181530177946,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.10233459190346325,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.10233459190346325,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.10233459190346325,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.05057249507677736,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.05057249507677736,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.05057249507677736,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.022773203602621354,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.022773203602621354,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.022773203602621354,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.004211815301779458,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.004211815301779458,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.004211815301779458,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "H2O",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "H2O",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "H2O",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.9529433669023919,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.9529433669023919,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000,
+    "num_centroids": 16000,
+    "total_tokens": 16000,
+    "recall": 0.9529433669023919,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.509009384080374,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.509009384080374,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.5,
+    "max_centroids": 8000,
+    "num_centroids": 8000,
+    "total_tokens": 16000,
+    "recall": 0.509009384080374,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.27794336690239185,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.27794336690239185,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.25,
+    "max_centroids": 4000,
+    "num_centroids": 4000,
+    "total_tokens": 16000,
+    "recall": 0.27794336690239185,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.1303775318049175,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.1303775318049175,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.1303775318049175,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.07648438656488867,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.07648438656488867,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.07648438656488867,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.04666044935365467,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.04666044935365467,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.04666044935365467,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.025943366902391816,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.025943366902391816,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.025943366902391816,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.01754996862019003,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.01754996862019003,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.01754996862019003,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.008486783392644387,
+    "method": "StreamingLLM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.008486783392644387,
+    "method": "StreamingLLM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.008486783392644387,
+    "method": "StreamingLLM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 0.1,
+    "max_centroids": 1600,
+    "num_centroids": 1600,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.05,
+    "max_centroids": 800,
+    "num_centroids": 800,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.025,
+    "max_centroids": 400,
+    "num_centroids": 400,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.01,
+    "max_centroids": 160,
+    "num_centroids": 160,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.005,
+    "max_centroids": 80,
+    "num_centroids": 80,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.0025,
+    "max_centroids": 40,
+    "num_centroids": 40,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.0025,
+    "max_centroids": 40,
+    "num_centroids": 40,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.0025,
+    "max_centroids": 40,
+    "num_centroids": 40,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.001,
+    "max_centroids": 16,
+    "num_centroids": 16,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.0005,
+    "max_centroids": 8,
+    "num_centroids": 8,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.0005,
+    "max_centroids": 8,
+    "num_centroids": 8,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.0005,
+    "max_centroids": 8,
+    "num_centroids": 8,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 6.25e-05,
+    "max_centroids": 1,
+    "num_centroids": 1,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 0
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 6.25e-05,
+    "max_centroids": 1,
+    "num_centroids": 1,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 1
+  },
+  {
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 6.25e-05,
+    "max_centroids": 1,
+    "num_centroids": 1,
+    "total_tokens": 16000,
+    "recall": 0.0,
+    "method": "MP-KVM",
+    "run": 2
+  }
+]

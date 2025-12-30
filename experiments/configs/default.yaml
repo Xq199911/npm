@@ -1,0 +1,21 @@
+# Default YAML config for MP-KVM experiments (PoC)
+model:
+  name: "poC-model"
+  dim: 1024
+
+run:
+  seed: 42
+  batch_size: 1
+  max_centroids_per_layer: 256
+  similarity_threshold: 0.12
+  lambda_diversity: 0.0
+
+mpkvm:
+  enable_injection: true
+  max_injected_centroids: 128
+  head_mean: false
+  device: "cuda:0"
+  sample_stride: 1
+  use_gpu_aggregator: true
+
+
