@@ -480,7 +480,7 @@ def run_ablation_studies(use_real_model: bool = False, model_path: str = "model/
     # Run ablation experiments with default parameters
     import sys
     original_argv = sys.argv.copy()
-    argv_list = ['ablation.py', '--out', 'results/ablation', '--total-tokens', '8000', '--n-needles', '40']
+    argv_list = ['ablation.py', '--out', 'results/ablation', '--total-tokens', '8000', '--n-needles', '40', '--window-size', '1024']
     if use_real_model:
         argv_list.append('--use-real-model')
         argv_list.extend(['--model-path', model_path])
@@ -703,7 +703,7 @@ def create_experiment_summary():
 
 def main():
     parser = argparse.ArgumentParser(description="Run MP-KVM experimental pipeline following paper methodology")
-    parser.add_argument("--phase", type=int, choices=[1,2,3,4,5], help="Run only specific phase (1-5)")
+    parser.add_argument("--phase", type=str, help="Run only specific phase (1-5, or 'attention' for attention analysis)")
     parser.add_argument("--skip-performance", action="store_true", help="Skip GPU performance profiling")
     parser.add_argument("--quick", action="store_true", help="Run quick version with reduced parameters")
     parser.add_argument("--use-real-model", action="store_true", help="Use real Llama model KV data instead of synthetic data")
@@ -725,16 +725,16 @@ def main():
 
     try:
         # Run experiments by phase
-        if args.phase is None or args.phase == 1:
+        if args.phase is None or args.phase == "1":
             run_baseline_experiments(use_real_model=args.use_real_model, model_path=args.model_path)
 
-        if args.phase is None or args.phase == 2:
+        if args.phase is None or args.phase == "2":
             run_manifold_visualization(use_real_model=args.use_real_model, model_path=args.model_path)
 
-        if args.phase is None or args.phase == 3:
+        if args.phase is None or args.phase == "3":
             run_core_experiments(use_real_model=args.use_real_model, model_path=args.model_path)
 
-        if args.phase is None or args.phase == 4:
+        if args.phase is None or args.phase == "4":
             run_ablation_studies(use_real_model=args.use_real_model, model_path=args.model_path)
 
         # Add needle experiments (required for Figure 2)
@@ -745,13 +745,14 @@ def main():
         if args.phase is None or args.phase == "attention":
             run_attention_analysis()
 
-        if args.phase is None or args.phase == 5:
+        if args.phase is None or args.phase == "5":
             if not args.skip_performance:
                 run_performance_profiling()
 
-        # Always generate figures and summary
-        generate_paper_figures()
-        create_experiment_summary()
+        # Generate figures and summary only when running all phases or specific analysis phases
+        if args.phase is None or args.phase in ["attention", "5"]:
+            generate_paper_figures()
+            create_experiment_summary()
 
         print("=" * 50)
         print("All experimental phases completed successfully!")

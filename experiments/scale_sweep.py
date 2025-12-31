@@ -94,34 +94,69 @@ def run_compression_experiment(compression_ratio: float, total_tokens: int = 160
     }
 
 
-def simulate_baseline_performance(compression_ratio: float, method: str, total_tokens: int = 16000) -> Dict[str, Any]:
-    """Simulate baseline methods performance at different compression ratios."""
-    np.random.seed(42 + hash(method) % 1000)
+def run_baseline_experiment(compression_ratio: float, method: str, total_tokens: int = 16000) -> Dict[str, Any]:
+    """Run actual baseline experiments using the same setup as MP-KVM."""
+    print(f"Running {method} baseline experiment with compression ratio {compression_ratio:.4f}")
 
+    # Import baseline implementation
+    from run_baseline_comparison import (
+        NoCompressionBaseline, RandomEvictionBaseline, H2OBaseline, StreamingLLMBaseline
+    )
+
+    # Use real model data for consistency with MP-KVM experiments
+    import torch
+    from run_real_model_experiment import setup_model_and_tokenizer, RealModelKVExtractor, create_long_context_text
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, tokenizer = setup_model_and_tokenizer("model/Llama-3.1-8B-Instruct", device)
+    extractor = RealModelKVExtractor(model, tokenizer, device=device)
+
+    # Create long context and extract KV vectors
+    context_text = create_long_context_text()
+    keys, values = extractor.extract_kv_from_text(context_text, max_length=min(total_tokens, 2048))
+
+    # Adjust to target length if needed
+    if keys.shape[0] < total_tokens:
+        # Pad with copies if needed
+        while keys.shape[0] < total_tokens:
+            keys = np.concatenate([keys, keys[:min(total_tokens - keys.shape[0], keys.shape[0])]], axis=0)
+            values = np.concatenate([values, values[:min(total_tokens - values.shape[0], values.shape[0])]], axis=0)
+        keys = keys[:total_tokens]
+        values = values[:total_tokens]
+
+    # Create needles for evaluation
+    n_needles = int(total_tokens * 0.005)  # 0.5% needles like in the paper
+    needle_indices = np.random.choice(total_tokens, n_needles, replace=False)
+    needles = keys[needle_indices]
+
+    # Set memory constraint based on compression ratio
+    max_memory_size = int(total_tokens * compression_ratio * keys.shape[1])  # memory proportional to compression ratio
+
+    # Initialize the appropriate baseline method
     if method == 'No Compression':
-        # Perfect performance at full retention, degrades linearly
-        recall = 0.98 * compression_ratio + np.random.normal(0, 0.01)
+        baseline = NoCompressionBaseline(max_memory_size, keys.shape[1])
     elif method == 'Random Eviction':
-        # Poor performance at extreme compression - linear decay
-        recall = 0.9 * compression_ratio + np.random.normal(0, 0.02)
+        baseline = RandomEvictionBaseline(max_memory_size, keys.shape[1])
     elif method == 'H2O':
-        # Heavy hitter oracle - better than random but still poor at extreme compression
-        recall = 0.85 * compression_ratio + 0.1 * np.sqrt(compression_ratio) + np.random.normal(0, 0.015)
+        baseline = H2OBaseline(max_memory_size, keys.shape[1])
     elif method == 'StreamingLLM':
-        # Sliding window - maintains performance for recent content
-        recall = 0.8 * compression_ratio + 0.15 * np.power(compression_ratio, 0.5) + np.random.normal(0, 0.02)
+        baseline = StreamingLLMBaseline(max_memory_size, keys.shape[1])
     else:
-        recall = 0.5  # fallback
+        raise ValueError(f"Unknown method: {method}")
 
-    return {
+    # Run the baseline experiment
+    result = baseline.compress_and_evaluate(keys, values, needles)
+
+    # Add additional metadata
+    result.update({
         "compression_ratio_target": compression_ratio,
-        "compression_ratio_actual": compression_ratio,
-        "max_centroids": int(total_tokens * compression_ratio),
-        "num_centroids": int(total_tokens * compression_ratio),
+        "compression_ratio_actual": result["memory_usage"] / total_tokens if "memory_usage" in result else compression_ratio,
+        "max_centroids": result["memory_usage"] if "memory_usage" in result else int(total_tokens * compression_ratio),
+        "num_centroids": result["memory_usage"] if "memory_usage" in result else int(total_tokens * compression_ratio),
         "total_tokens": total_tokens,
-        "recall": float(np.clip(recall, 0.0, 1.0)),
-        "method": method
-    }
+    })
+
+    return result
 
 
 def main():
@@ -158,7 +193,7 @@ def main():
                 if method == 'MP-KVM':
                     result = run_compression_experiment(ratio, total_tokens)
                 else:
-                    result = simulate_baseline_performance(ratio, method, total_tokens)
+                    result = run_baseline_experiment(ratio, method, total_tokens)
 
                 result["run"] = run
                 ratio_results.append(result)
