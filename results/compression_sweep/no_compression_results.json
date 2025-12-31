@@ -1,0 +1,101 @@
+[
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "No Compression",
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 1.0,
+    "max_centroids": 16000.0,
+    "num_centroids": 16000.0,
+    "total_tokens": 16000,
+    "recall_mean": 1.0,
+    "recall_std": 0.0,
+    "n_runs": 3
+  }
+]

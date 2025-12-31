@@ -1,0 +1,101 @@
+[
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.525,
+    "recall_std": 0.05103103630798288,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5083333333333334,
+    "recall_std": 0.07795119555779047,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5875,
+    "recall_std": 0.08164965809277261,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5083333333333333,
+    "recall_std": 0.05137011669140812,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5208333333333334,
+    "recall_std": 0.031180478223116186,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5208333333333334,
+    "recall_std": 0.04249182927993986,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5333333333333333,
+    "recall_std": 0.07240894665409489,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.55,
+    "recall_std": 0.07144345083117605,
+    "n_runs": 3
+  },
+  {
+    "method": "Random Eviction",
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5916666666666667,
+    "recall_std": 0.011785113019775804,
+    "n_runs": 3
+  }
+]

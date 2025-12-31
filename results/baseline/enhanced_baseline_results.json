@@ -1,0 +1,72 @@
+[
+  {
+    "method": "No Compression",
+    "recall": 1.0,
+    "memory_usage": 2766,
+    "compression_ratio": 1.0,
+    "runtime_seconds": 0.005640506744384766
+  },
+  {
+    "method": "Random Eviction",
+    "recall": 0.1,
+    "memory_usage": 276,
+    "compression_ratio": 0.09978308026030369,
+    "runtime_seconds": 0.0025081634521484375
+  },
+  {
+    "method": "H2O (Heavy-Hitter)",
+    "recall": 0.125,
+    "memory_usage": 276,
+    "compression_ratio": 0.09978308026030369,
+    "runtime_seconds": 0.003000020980834961
+  },
+  {
+    "method": "StreamingLLM",
+    "recall": 0.125,
+    "memory_usage": 276,
+    "compression_ratio": 0.09978308026030369,
+    "runtime_seconds": 0.0
+  },
+  {
+    "method": "MP-KVM (Ours)",
+    "recall": 0.975,
+    "memory_usage": 105,
+    "compression_ratio": 0.03796095444685466,
+    "runtime_seconds": 0.04316401481628418
+  },
+  {
+    "method": "No Compression",
+    "recall": 1.0,
+    "memory_usage": 2766,
+    "compression_ratio": 1.0,
+    "runtime_seconds": 0.006999492645263672
+  },
+  {
+    "method": "Random Eviction",
+    "recall": 0.1375,
+    "memory_usage": 276,
+    "compression_ratio": 0.09978308026030369,
+    "runtime_seconds": 0.004000425338745117
+  },
+  {
+    "method": "H2O (Heavy-Hitter)",
+    "recall": 0.1625,
+    "memory_usage": 276,
+    "compression_ratio": 0.09978308026030369,
+    "runtime_seconds": 0.003008604049682617
+  },
+  {
+    "method": "StreamingLLM",
+    "recall": 0.15,
+    "memory_usage": 276,
+    "compression_ratio": 0.09978308026030369,
+    "runtime_seconds": 0.003001689910888672
+  },
+  {
+    "method": "MP-KVM (Ours)",
+    "recall": 0.975,
+    "memory_usage": 105,
+    "compression_ratio": 0.03796095444685466,
+    "runtime_seconds": 0.06395816802978516
+  }
+]

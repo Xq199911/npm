@@ -1,0 +1,101 @@
+[
+  {
+    "method": "H2O",
+    "compression_ratio_target": 1.0,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.5958333333333333,
+    "recall_std": 0.04124789556921528,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.5,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.25,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.1,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.05,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.025,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.01,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.005,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  },
+  {
+    "method": "H2O",
+    "compression_ratio_target": 0.001,
+    "compression_ratio_actual": 0.10000000000000002,
+    "max_centroids": 1600.0,
+    "num_centroids": 1600.0,
+    "total_tokens": 16000,
+    "recall_mean": 0.625,
+    "recall_std": 0.0,
+    "n_runs": 3
+  }
+]
