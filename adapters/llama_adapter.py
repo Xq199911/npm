@@ -42,6 +42,83 @@ def _to_numpy(tensor):
 _DEBUG = os.getenv("MPKVM_DEBUG", "1") == "1"
 
 
+def _process_kv_incremental_with_slicing(manager: MPKVMManager, layer_idx: int, k, v, seq_len: int,
+                                      head_mean: bool = False, sample_stride: int = 1, pre_rope_key=None, per_head_clustering: bool = False):
+    """
+    Process KV tensors with incremental slicing logic.
+    This handles the complex logic of extracting only new tokens before processing.
+    """
+    # CRITICAL FIX: Extract only NEW tokens before flattening to avoid index bug
+    # The bug was: flattening [B,S,H,D] -> [B*S*H,D] then slicing [start:end]
+    # would only get a tiny fraction of new tokens
+    # Get previously processed length for this layer (and head if per-head)
+    length_key = (layer_idx, None) if per_head_clustering and hasattr(k, 'ndim') and k.ndim == 4 else layer_idx
+    prev_len = getattr(manager, '_processed_lengths', {}).get(length_key, 0)
+
+    # Calculate how many new tokens to process
+    new_tokens = seq_len - prev_len
+    if new_tokens > 0:
+        # Extract only the new tokens from the end of each sequence
+        # Handle different tensor shapes: [B,H,S,D] or [B,S,H,D] or [S,D]
+        if hasattr(k, 'ndim') and k.ndim == 4:
+            # Shape: [B, H/kv, S, D] or [B, S, H, D]
+            # Assume last dimension is S (sequence), extract last new_tokens
+            k_new = k[..., -new_tokens:, :]  # Keep all dims except last, take last new_tokens
+            v_new = v[..., -new_tokens:, :]
+            pre_rope_new = pre_rope_key[..., -new_tokens:, :] if pre_rope_key is not None else None
+        elif hasattr(k, 'ndim') and k.ndim == 3:
+            # Shape: [B, S, D] - already flattened heads
+            k_new = k[:, -new_tokens:, :]  # Take last new_tokens sequences
+            v_new = v[:, -new_tokens:, :]
+            pre_rope_new = pre_rope_key[:, -new_tokens:, :] if pre_rope_key is not None else None
+        elif hasattr(k, 'ndim') and k.ndim == 2:
+            # Shape: [S, D] - single sequence
+            k_new = k[-new_tokens:, :]  # Take last new_tokens tokens
+            v_new = v[-new_tokens:, :]
+            pre_rope_new = pre_rope_key[-new_tokens:, :] if pre_rope_key is not None else None
+        else:
+            # Fallback: assume sequence is last dimension
+            k_new = k[..., -new_tokens:, :]
+            v_new = v[..., -new_tokens:, :]
+            pre_rope_new = pre_rope_key[..., -new_tokens:, :] if pre_rope_key is not None else None
+
+        # Now process the extracted new tokens
+        if per_head_clustering and hasattr(k_new, 'ndim') and k_new.ndim == 4:
+            # Per-head processing: process each head separately
+            import torch
+            B = k_new.shape[0]
+            # Determine which dimension is heads
+            if k_new.shape[1] == k.shape[1] and k.shape[1] != B:  # Same as original, not batch
+                H = k_new.shape[1]  # [B, H, S, D]
+                head_dim = 1
+            else:
+                H = k_new.shape[2] if k_new.shape[1] == B else k_new.shape[1]  # [B, S, H, D] or similar
+                head_dim = 2 if k_new.shape[1] == B else 1
+
+            for h in range(H):
+                if head_dim == 1:
+                    k_head = k_new[:, h:h+1, :, :]  # [B,1,S_new,D]
+                    v_head = v_new[:, h:h+1, :, :]
+                    pre_rope_h = pre_rope_new[:, h:h+1, :, :] if pre_rope_new is not None else None
+                else:  # head_dim == 2
+                    k_head = k_new[:, :, h:h+1, :]  # [B,S_new,1,D]
+                    v_head = v_new[:, :, h:h+1, :]
+                    pre_rope_h = pre_rope_new[:, :, h:h+1, :] if pre_rope_new is not None else None
+
+                _process_kv_direct(manager, layer_idx, k_head, v_head, new_tokens,
+                                 head_mean=head_mean, sample_stride=sample_stride,
+                                 pre_rope_key=pre_rope_h, head_idx=h)
+        else:
+            # Standard processing (all heads together or per-layer)
+            _process_kv_direct(manager, layer_idx, k_new, v_new, new_tokens,
+                             head_mean=head_mean, sample_stride=sample_stride, pre_rope_key=pre_rope_new)
+
+        # Update the processed length
+        if hasattr(manager, '_processed_lengths'):
+            manager._processed_lengths[length_key] = seq_len
+    # If no new tokens, skip processing
+
+
 def _process_kv_direct(manager: MPKVMManager, layer_idx: int, k_tensor, v_tensor, seq_len: int,
                       head_mean: bool = False, sample_stride: int = 1, pre_rope_key=None, head_idx: Optional[int] = None):
     """
@@ -104,106 +181,6 @@ def _process_kv_direct(manager: MPKVMManager, layer_idx: int, k_tensor, v_tensor
     # Use direct add_kv (not incremental, since we already sliced)
     manager.add_kv(layer_idx, kn_proc, vn_proc, head_idx=head_idx)
 
-
-def _process_kv_incremental(manager: MPKVMManager, layer_idx: int, k_tensor, v_tensor, seq_len: int,
-                          head_mean: bool = False, sample_stride: int = 1, pre_rope_key=None, per_head_clustering: bool = False):
-    """
-    CRITICAL FIX: Process only incremental KV tensors since last call.
-
-    This prevents the severe bug where full historical cache was repeatedly fed
-    to the clustering operator, causing memory explosion and incorrect weighting.
-    """
-    # normalize to numpy where possible but keep original tensors for possible GPU path
-    kn = _to_numpy(k_tensor)
-    vn = _to_numpy(v_tensor)
-
-    # Validate tensor shapes before processing
-    if kn.shape != vn.shape:
-        print(f"[MPKVM][WARN] K and V shapes don't match: K{kn.shape} vs V{vn.shape}")
-
-    if per_head_clustering and kn.ndim == 4:
-        # Per-head clustering: process each head separately
-        B, S, H, D = kn.shape
-        for h in range(H):
-            # Extract data for this head
-            k_head = kn[:, :, h, :]  # (B, S, D)
-            v_head = vn[:, :, h, :]  # (B, S, D)
-            pre_rope_h = pre_rope_key[:, :, h, :] if pre_rope_key is not None else None
-
-            # Flatten for processing: (B*S, D)
-            k_head_flat = k_head.reshape(-1, D)
-            v_head_flat = v_head.reshape(-1, D)
-
-            # Process pre-rope keys if available
-            if pre_rope_h is not None:
-                k_clustering = pre_rope_h.reshape(-1, D)  # (B*S, D)
-                if sample_stride is not None and sample_stride > 1:
-                    k_clustering = k_clustering[::sample_stride]
-                # No need for positionless transformation - Pre-RoPE keys are already position-agnostic
-                k_final = k_clustering.astype(np.float32)
-            else:
-                k_final = k_head_flat
-                if sample_stride is not None and sample_stride > 1:
-                    k_final = k_final[::sample_stride]
-                # Apply positionless transformation to remove RoPE rotation
-                k_final = _make_positionless_numpy(k_final)
-
-            # Process values
-            v_final = v_head_flat
-            if sample_stride is not None and sample_stride > 1:
-                v_final = v_final[::sample_stride]
-            v_final = v_final.astype(np.float32)
-
-            # Add to per-head cluster
-            manager.add_kv_incremental(layer_idx, k_final, v_final, seq_len, head_idx=h)
-    else:
-        # Standard processing (all heads together or per-layer)
-        # expected shapes: (batch, seq, n_heads, head_dim) or (batch, seq, head_dim) or already flattened (N, D)
-        def _reshape_proc(arr):
-            if arr.ndim == 4:
-                # (B, S, H, D_head)
-                if head_mean:
-                    return arr.mean(axis=2).reshape((-1, arr.shape[-1]))
-                return arr.reshape((-1, arr.shape[-1]))
-            elif arr.ndim == 3:
-                # (B, S, D) or (B, S, H) after head_mean handled above
-                return arr.reshape((-1, arr.shape[-1]))
-            elif arr.ndim == 2:
-                return arr
-            else:
-                return arr.reshape((-1, arr.shape[-1]))
-
-        kn_proc = _reshape_proc(kn)
-        vn_proc = _reshape_proc(vn)
-
-        # CRITICAL FIX: Use Pre-RoPE Keys for clustering if available
-        # This preserves semantic similarity by avoiding RoPE rotation effects
-        if pre_rope_key is not None:
-            # Use Pre-RoPE keys for clustering (semantic similarity preservation)
-            k_clustering = _to_numpy(pre_rope_key)
-            k_clustering_proc = _reshape_proc(k_clustering)
-
-            if sample_stride is not None and sample_stride > 1:
-                k_clustering_proc = k_clustering_proc[::sample_stride]
-
-            # No need for positionless transformation - Pre-RoPE keys are already position-agnostic
-            kn_proc = k_clustering_proc.astype(np.float32)
-        else:
-            # Fallback: Use Post-RoPE keys with positionless transformation
-            if sample_stride is not None and sample_stride > 1:
-                kn_proc = kn_proc[::sample_stride]
-
-            # This ensures semantic clustering is not affected by token position
-            kn_proc = _make_positionless_numpy(kn_proc)
-            kn_proc = kn_proc.astype(np.float32)
-
-        if sample_stride is not None and sample_stride > 1:
-            vn_proc = vn_proc[::sample_stride]
-
-        vn_proc = vn_proc.astype(np.float32)
-
-        # Use incremental addition to manager
-        manager.add_kv_incremental(layer_idx, kn_proc, vn_proc, seq_len)
 
 
 def _extract_pre_rope_key(hidden_states, attn_module, head_mean: bool = False):
@@ -604,75 +581,10 @@ def attach_mpkvm_to_hf_llama(
                             seq_len = len(k)
 
                         if seq_len is not None:
-                            # CRITICAL FIX: Extract only NEW tokens before flattening to avoid index bug
-                            # The bug was: flattening [B,S,H,D] -> [B*S*H,D] then slicing [start:end]
-                            # would only get a tiny fraction of new tokens
-
-                            # Get previously processed length for this layer (and head if per-head)
-                            length_key = (layer_idx, None) if per_head_clustering and k.ndim == 4 else layer_idx
-                            prev_len = getattr(manager, '_processed_lengths', {}).get(length_key, 0)
-
-                            # Calculate how many new tokens to process
-                            new_tokens = seq_len - prev_len
-                            if new_tokens > 0:
-                                # Extract only the new tokens from the end of each sequence
-                                # Handle different tensor shapes: [B,H,S,D] or [B,S,H,D] or [S,D]
-                                if k.ndim == 4:
-                                    # Shape: [B, H/kv, S, D] or [B, S, H, D]
-                                    # Assume last dimension is S (sequence), extract last new_tokens
-                                    k_new = k[..., -new_tokens:, :]  # Keep all dims except last, take last new_tokens
-                                    v_new = v[..., -new_tokens:, :]
-                                    pre_rope_new = pre_rope_key[..., -new_tokens:, :] if pre_rope_key is not None else None
-                                elif k.ndim == 3:
-                                    # Shape: [B, S, D] - already flattened heads
-                                    k_new = k[:, -new_tokens:, :]  # Take last new_tokens sequences
-                                    v_new = v[:, -new_tokens:, :]
-                                    pre_rope_new = pre_rope_key[:, -new_tokens:, :] if pre_rope_key is not None else None
-                                elif k.ndim == 2:
-                                    # Shape: [S, D] - single sequence
-                                    k_new = k[-new_tokens:, :]  # Take last new_tokens tokens
-                                    v_new = v[-new_tokens:, :]
-                                    pre_rope_new = pre_rope_key[-new_tokens:, :] if pre_rope_key is not None else None
-                                else:
-                                    # Fallback: assume sequence is last dimension
-                                    k_new = k[..., -new_tokens:, :]
-                                    v_new = v[..., -new_tokens:, :]
-                                    pre_rope_new = pre_rope_key[..., -new_tokens:, :] if pre_rope_key is not None else None
-
-                                # Now process the extracted new tokens
-                                if per_head_clustering and k_new.ndim == 4:
-                                    # Per-head processing: process each head separately
-                                    B = k_new.shape[0]
-                                    # Determine which dimension is heads
-                                    if k_new.shape[1] == k.shape[1] and k.shape[1] != B:  # Same as original, not batch
-                                        H = k_new.shape[1]  # [B, H, S, D]
-                                        head_dim = 1
-                                    else:
-                                        H = k_new.shape[2] if k_new.shape[1] == B else k_new.shape[1]  # [B, S, H, D] or similar
-                                        head_dim = 2 if k_new.shape[1] == B else 1
-
-                                    for h in range(H):
-                                        if head_dim == 1:
-                                            k_head = k_new[:, h:h+1, :, :]  # [B,1,S_new,D]
-                                            v_head = v_new[:, h:h+1, :, :]
-                                            pre_rope_h = pre_rope_new[:, h:h+1, :, :] if pre_rope_new is not None else None
-                                        else:  # head_dim == 2
-                                            k_head = k_new[:, :, h:h+1, :]  # [B,S_new,1,D]
-                                            v_head = v_new[:, :, h:h+1, :]
-                                            pre_rope_h = pre_rope_new[:, :, h:h+1, :] if pre_rope_new is not None else None
-
-                                        _process_kv_direct(manager, layer_idx, k_head, v_head, new_tokens,
-                                                         head_mean=head_mean, sample_stride=sample_stride,
-                                                         pre_rope_key=pre_rope_h, head_idx=h)
-                                else:
-                                    # Standard processing (all heads together or per-layer)
-                                    _process_kv_direct(manager, layer_idx, k_new, v_new, new_tokens,
-                                                     head_mean=head_mean, sample_stride=sample_stride, pre_rope_key=pre_rope_new)
-
-                                # Update the processed length
-                                if hasattr(manager, '_processed_lengths'):
-                                    manager._processed_lengths[length_key] = seq_len
-                            # If no new tokens, skip processing
+                            # Use the dedicated incremental processing function
+                            _process_kv_incremental_with_slicing(manager, layer_idx, k, v, seq_len,
+                                                               head_mean=head_mean, sample_stride=sample_stride,
+                                                               pre_rope_key=pre_rope_key, per_head_clustering=per_head_clustering)
                         else:
                             # Fallback to original processing if seq_len cannot be determined
                             _process_kv_and_add(manager, layer_idx, k, v, head_mean=head_mean, sample_stride=sample_stride, pre_rope_key=pre_rope_key)

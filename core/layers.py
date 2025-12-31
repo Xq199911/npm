@@ -1,6 +1,5 @@
 """
 Reconstructed attention utilities for MP-KVM.
-
 Provides a helper attention implementation that can concatenate centroid tokens
 into the key/value matrices so that queries can attend to both recent tokens and
 abstracted centroid tokens.

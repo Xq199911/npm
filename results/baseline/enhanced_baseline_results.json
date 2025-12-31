@@ -4,69 +4,69 @@
     "recall": 1.0,
     "memory_usage": 2766,
     "compression_ratio": 1.0,
-    "runtime_seconds": 0.00299835205078125
+    "runtime_seconds": 0.008999347686767578
   },
   {
     "method": "Random Eviction",
     "recall": 0.1,
     "memory_usage": 276,
     "compression_ratio": 0.09978308026030369,
-    "runtime_seconds": 0.0
+    "runtime_seconds": 0.0009984970092773438
   },
   {
     "method": "H2O (Heavy-Hitter)",
     "recall": 0.125,
     "memory_usage": 276,
     "compression_ratio": 0.09978308026030369,
-    "runtime_seconds": 0.003511190414428711
+    "runtime_seconds": 0.008004426956176758
   },
   {
     "method": "StreamingLLM",
     "recall": 0.125,
     "memory_usage": 276,
     "compression_ratio": 0.09978308026030369,
-    "runtime_seconds": 0.0
+    "runtime_seconds": 0.0009996891021728516
   },
   {
     "method": "MP-KVM (Ours)",
     "recall": 0.975,
     "memory_usage": 105,
     "compression_ratio": 0.03796095444685466,
-    "runtime_seconds": 0.04160714149475098
+    "runtime_seconds": 0.05552363395690918
   },
   {
     "method": "No Compression",
     "recall": 1.0,
     "memory_usage": 2766,
     "compression_ratio": 1.0,
-    "runtime_seconds": 0.002266407012939453
+    "runtime_seconds": 0.0030024051666259766
   },
   {
     "method": "Random Eviction",
     "recall": 0.1375,
     "memory_usage": 276,
     "compression_ratio": 0.09978308026030369,
-    "runtime_seconds": 0.001004934310913086
+    "runtime_seconds": 0.0009982585906982422
   },
   {
     "method": "H2O (Heavy-Hitter)",
     "recall": 0.1625,
     "memory_usage": 276,
     "compression_ratio": 0.09978308026030369,
-    "runtime_seconds": 0.0
+    "runtime_seconds": 0.0010004043579101562
   },
   {
     "method": "StreamingLLM",
     "recall": 0.15,
     "memory_usage": 276,
     "compression_ratio": 0.09978308026030369,
-    "runtime_seconds": 0.0019996166229248047
+    "runtime_seconds": 0.0030012130737304688
   },
   {
     "method": "MP-KVM (Ours)",
     "recall": 0.975,
     "memory_usage": 105,
     "compression_ratio": 0.03796095444685466,
-    "runtime_seconds": 0.0323481559753418
+    "runtime_seconds": 0.03969693183898926
   }
 ]

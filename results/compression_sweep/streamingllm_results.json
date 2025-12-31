@@ -6,7 +6,7 @@
     "max_centroids": 16000.0,
     "num_centroids": 16000.0,
     "total_tokens": 16000,
-    "recall_mean": 0.9529433669023919,
+    "recall_mean": 0.9370477461505405,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -17,8 +17,8 @@
     "max_centroids": 8000.0,
     "num_centroids": 8000.0,
     "total_tokens": 16000,
-    "recall_mean": 0.509009384080374,
-    "recall_std": 0.0,
+    "recall_mean": 0.4931137633285226,
+    "recall_std": 5.551115123125783e-17,
     "n_runs": 3
   },
   {
@@ -28,7 +28,7 @@
     "max_centroids": 4000.0,
     "num_centroids": 4000.0,
     "total_tokens": 16000,
-    "recall_mean": 0.27794336690239185,
+    "recall_mean": 0.2620477461505405,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -39,7 +39,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.1303775318049175,
+    "recall_mean": 0.11448191105306621,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -50,7 +50,7 @@
     "max_centroids": 800.0,
     "num_centroids": 800.0,
     "total_tokens": 16000,
-    "recall_mean": 0.07648438656488867,
+    "recall_mean": 0.06058876581303735,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -61,8 +61,8 @@
     "max_centroids": 400.0,
     "num_centroids": 400.0,
     "total_tokens": 16000,
-    "recall_mean": 0.046660449353654675,
-    "recall_std": 6.938893903907228e-18,
+    "recall_mean": 0.03076482860180335,
+    "recall_std": 0.0,
     "n_runs": 3
   },
   {
@@ -72,8 +72,8 @@
     "max_centroids": 160.0,
     "num_centroids": 160.0,
     "total_tokens": 16000,
-    "recall_mean": 0.025943366902391813,
-    "recall_std": 3.469446951953614e-18,
+    "recall_mean": 0.010047746150540498,
+    "recall_std": 0.0,
     "n_runs": 3
   },
   {
@@ -83,7 +83,7 @@
     "max_centroids": 80.0,
     "num_centroids": 80.0,
     "total_tokens": 16000,
-    "recall_mean": 0.01754996862019003,
+    "recall_mean": 0.0016543478683387104,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -94,7 +94,7 @@
     "max_centroids": 16.0,
     "num_centroids": 16.0,
     "total_tokens": 16000,
-    "recall_mean": 0.008486783392644387,
+    "recall_mean": 0.0,
     "recall_std": 0.0,
     "n_runs": 3
   }

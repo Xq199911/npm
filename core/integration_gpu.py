@@ -9,7 +9,11 @@ Design:
 """
 from __future__ import annotations
 from typing import Any, Dict, List, Optional
+import os
 import numpy as np
+
+# Debug flag for GPU aggregator
+_DEBUG = os.getenv("MPKVM_DEBUG", "1") == "1"
 
 
 class MPKVMGPUAggregator:

@@ -5,7 +5,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.993661073296588,
+    "recall": 0.9894679634565221,
     "method": "No Compression",
     "run": 0
   },
@@ -15,7 +15,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.993661073296588,
+    "recall": 0.9894679634565221,
     "method": "No Compression",
     "run": 1
   },
@@ -25,7 +25,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.993661073296588,
+    "recall": 0.9894679634565221,
     "method": "No Compression",
     "run": 2
   },
@@ -35,7 +35,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.503661073296588,
+    "recall": 0.4994679634565221,
     "method": "No Compression",
     "run": 0
   },
@@ -45,7 +45,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.503661073296588,
+    "recall": 0.4994679634565221,
     "method": "No Compression",
     "run": 1
   },
@@ -55,7 +55,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.503661073296588,
+    "recall": 0.4994679634565221,
     "method": "No Compression",
     "run": 2
   },
@@ -65,7 +65,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.2586610732965881,
+    "recall": 0.2544679634565221,
     "method": "No Compression",
     "run": 0
   },
@@ -75,7 +75,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.2586610732965881,
+    "recall": 0.2544679634565221,
     "method": "No Compression",
     "run": 1
   },
@@ -85,7 +85,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.2586610732965881,
+    "recall": 0.2544679634565221,
     "method": "No Compression",
     "run": 2
   },
@@ -95,7 +95,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.11166107329658811,
+    "recall": 0.10746796345652214,
     "method": "No Compression",
     "run": 0
   },
@@ -105,7 +105,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.11166107329658811,
+    "recall": 0.10746796345652214,
     "method": "No Compression",
     "run": 1
   },
@@ -115,7 +115,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.11166107329658811,
+    "recall": 0.10746796345652214,
     "method": "No Compression",
     "run": 2
   },
@@ -125,7 +125,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.06266107329658811,
+    "recall": 0.05846796345652214,
     "method": "No Compression",
     "run": 0
   },
@@ -135,7 +135,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.06266107329658811,
+    "recall": 0.05846796345652214,
     "method": "No Compression",
     "run": 1
   },
@@ -145,7 +145,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.06266107329658811,
+    "recall": 0.05846796345652214,
     "method": "No Compression",
     "run": 2
   },
@@ -155,7 +155,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.038161073296588105,
+    "recall": 0.033967963456522136,
     "method": "No Compression",
     "run": 0
   },
@@ -165,7 +165,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.038161073296588105,
+    "recall": 0.033967963456522136,
     "method": "No Compression",
     "run": 1
   },
@@ -175,7 +175,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.038161073296588105,
+    "recall": 0.033967963456522136,
     "method": "No Compression",
     "run": 2
   },
@@ -185,7 +185,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.023461073296588107,
+    "recall": 0.01926796345652213,
     "method": "No Compression",
     "run": 0
   },
@@ -195,7 +195,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.023461073296588107,
+    "recall": 0.01926796345652213,
     "method": "No Compression",
     "run": 1
   },
@@ -205,7 +205,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.023461073296588107,
+    "recall": 0.01926796345652213,
     "method": "No Compression",
     "run": 2
   },
@@ -215,7 +215,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.018561073296588106,
+    "recall": 0.014367963456522134,
     "method": "No Compression",
     "run": 0
   },
@@ -225,7 +225,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.018561073296588106,
+    "recall": 0.014367963456522134,
     "method": "No Compression",
     "run": 1
   },
@@ -235,7 +235,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.018561073296588106,
+    "recall": 0.014367963456522134,
     "method": "No Compression",
     "run": 2
   },
@@ -245,7 +245,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.014641073296588107,
+    "recall": 0.010447963456522134,
     "method": "No Compression",
     "run": 0
   },
@@ -255,7 +255,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.014641073296588107,
+    "recall": 0.010447963456522134,
     "method": "No Compression",
     "run": 1
   },
@@ -265,7 +265,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.014641073296588107,
+    "recall": 0.010447963456522134,
     "method": "No Compression",
     "run": 2
   },
@@ -275,7 +275,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.8757568219977027,
+    "recall": 0.8848818270597912,
     "method": "Random Eviction",
     "run": 0
   },
@@ -285,7 +285,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.8757568219977027,
+    "recall": 0.8848818270597912,
     "method": "Random Eviction",
     "run": 1
   },
@@ -295,7 +295,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.8757568219977027,
+    "recall": 0.8848818270597912,
     "method": "Random Eviction",
     "run": 2
   },
@@ -305,7 +305,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.42575682199770265,
+    "recall": 0.4348818270597912,
     "method": "Random Eviction",
     "run": 0
   },
@@ -315,7 +315,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.42575682199770265,
+    "recall": 0.4348818270597912,
     "method": "Random Eviction",
     "run": 1
   },
@@ -325,7 +325,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.42575682199770265,
+    "recall": 0.4348818270597912,
     "method": "Random Eviction",
     "run": 2
   },
@@ -335,7 +335,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.20075682199770264,
+    "recall": 0.20988182705979122,
     "method": "Random Eviction",
     "run": 0
   },
@@ -345,7 +345,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.20075682199770264,
+    "recall": 0.20988182705979122,
     "method": "Random Eviction",
     "run": 1
   },
@@ -355,7 +355,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.20075682199770264,
+    "recall": 0.20988182705979122,
     "method": "Random Eviction",
     "run": 2
   },
@@ -365,7 +365,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.06575682199770265,
+    "recall": 0.07488182705979123,
     "method": "Random Eviction",
     "run": 0
   },
@@ -375,7 +375,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.06575682199770265,
+    "recall": 0.07488182705979123,
     "method": "Random Eviction",
     "run": 1
   },
@@ -385,7 +385,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.06575682199770265,
+    "recall": 0.07488182705979123,
     "method": "Random Eviction",
     "run": 2
   },
@@ -395,7 +395,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.02075682199770264,
+    "recall": 0.02988182705979122,
     "method": "Random Eviction",
     "run": 0
   },
@@ -405,7 +405,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.02075682199770264,
+    "recall": 0.02988182705979122,
     "method": "Random Eviction",
     "run": 1
   },
@@ -415,7 +415,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.02075682199770264,
+    "recall": 0.02988182705979122,
     "method": "Random Eviction",
     "run": 2
   },
@@ -425,7 +425,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.007381827059791218,
     "method": "Random Eviction",
     "run": 0
   },
@@ -435,7 +435,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.007381827059791218,
     "method": "Random Eviction",
     "run": 1
   },
@@ -445,7 +445,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.007381827059791218,
     "method": "Random Eviction",
     "run": 2
   },
@@ -545,7 +545,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.9357118153017794,
+    "recall": 0.946320114994424,
     "method": "H2O",
     "run": 0
   },
@@ -555,7 +555,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.9357118153017794,
+    "recall": 0.946320114994424,
     "method": "H2O",
     "run": 1
   },
@@ -565,7 +565,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.9357118153017794,
+    "recall": 0.946320114994424,
     "method": "H2O",
     "run": 2
   },
@@ -575,7 +575,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.48142249342043425,
+    "recall": 0.4920307931130788,
     "method": "H2O",
     "run": 0
   },
@@ -585,7 +585,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.48142249342043425,
+    "recall": 0.4920307931130788,
     "method": "H2O",
     "run": 1
   },
@@ -595,7 +595,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.48142249342043425,
+    "recall": 0.4920307931130788,
     "method": "H2O",
     "run": 2
   },
@@ -605,7 +605,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.24821181530177946,
+    "recall": 0.25882011499442403,
     "method": "H2O",
     "run": 0
   },
@@ -615,7 +615,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.24821181530177946,
+    "recall": 0.25882011499442403,
     "method": "H2O",
     "run": 1
   },
@@ -625,7 +625,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.24821181530177946,
+    "recall": 0.25882011499442403,
     "method": "H2O",
     "run": 2
   },
@@ -635,7 +635,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.10233459190346325,
+    "recall": 0.11294289159610783,
     "method": "H2O",
     "run": 0
   },
@@ -645,7 +645,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.10233459190346325,
+    "recall": 0.11294289159610783,
     "method": "H2O",
     "run": 1
   },
@@ -655,7 +655,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.10233459190346325,
+    "recall": 0.11294289159610783,
     "method": "H2O",
     "run": 2
   },
@@ -665,7 +665,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.05057249507677736,
+    "recall": 0.061180794769421946,
     "method": "H2O",
     "run": 0
   },
@@ -675,7 +675,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.05057249507677736,
+    "recall": 0.061180794769421946,
     "method": "H2O",
     "run": 1
   },
@@ -685,7 +685,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.05057249507677736,
+    "recall": 0.061180794769421946,
     "method": "H2O",
     "run": 2
   },
@@ -695,7 +695,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.022773203602621354,
+    "recall": 0.033381503295265944,
     "method": "H2O",
     "run": 0
   },
@@ -705,7 +705,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.022773203602621354,
+    "recall": 0.033381503295265944,
     "method": "H2O",
     "run": 1
   },
@@ -715,7 +715,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.022773203602621354,
+    "recall": 0.033381503295265944,
     "method": "H2O",
     "run": 2
   },
@@ -725,7 +725,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.004211815301779458,
+    "recall": 0.014820114994424042,
     "method": "H2O",
     "run": 0
   },
@@ -735,7 +735,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.004211815301779458,
+    "recall": 0.014820114994424042,
     "method": "H2O",
     "run": 1
   },
@@ -745,7 +745,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.004211815301779458,
+    "recall": 0.014820114994424042,
     "method": "H2O",
     "run": 2
   },
@@ -755,7 +755,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.007641182806289515,
     "method": "H2O",
     "run": 0
   },
@@ -765,7 +765,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.007641182806289515,
     "method": "H2O",
     "run": 1
   },
@@ -775,7 +775,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.007641182806289515,
     "method": "H2O",
     "run": 2
   },
@@ -785,7 +785,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.00033239265459241926,
     "method": "H2O",
     "run": 0
   },
@@ -795,7 +795,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.00033239265459241926,
     "method": "H2O",
     "run": 1
   },
@@ -805,7 +805,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.0,
+    "recall": 0.00033239265459241926,
     "method": "H2O",
     "run": 2
   },
@@ -815,7 +815,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.9529433669023919,
+    "recall": 0.9370477461505405,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -825,7 +825,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.9529433669023919,
+    "recall": 0.9370477461505405,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -835,7 +835,7 @@
     "max_centroids": 16000,
     "num_centroids": 16000,
     "total_tokens": 16000,
-    "recall": 0.9529433669023919,
+    "recall": 0.9370477461505405,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -845,7 +845,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.509009384080374,
+    "recall": 0.49311376332852264,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -855,7 +855,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.509009384080374,
+    "recall": 0.49311376332852264,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -865,7 +865,7 @@
     "max_centroids": 8000,
     "num_centroids": 8000,
     "total_tokens": 16000,
-    "recall": 0.509009384080374,
+    "recall": 0.49311376332852264,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -875,7 +875,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.27794336690239185,
+    "recall": 0.2620477461505405,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -885,7 +885,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.27794336690239185,
+    "recall": 0.2620477461505405,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -895,7 +895,7 @@
     "max_centroids": 4000,
     "num_centroids": 4000,
     "total_tokens": 16000,
-    "recall": 0.27794336690239185,
+    "recall": 0.2620477461505405,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -905,7 +905,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.1303775318049175,
+    "recall": 0.11448191105306621,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -915,7 +915,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.1303775318049175,
+    "recall": 0.11448191105306621,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -925,7 +925,7 @@
     "max_centroids": 1600,
     "num_centroids": 1600,
     "total_tokens": 16000,
-    "recall": 0.1303775318049175,
+    "recall": 0.11448191105306621,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -935,7 +935,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.07648438656488867,
+    "recall": 0.06058876581303735,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -945,7 +945,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.07648438656488867,
+    "recall": 0.06058876581303735,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -955,7 +955,7 @@
     "max_centroids": 800,
     "num_centroids": 800,
     "total_tokens": 16000,
-    "recall": 0.07648438656488867,
+    "recall": 0.06058876581303735,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -965,7 +965,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.04666044935365467,
+    "recall": 0.03076482860180335,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -975,7 +975,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.04666044935365467,
+    "recall": 0.03076482860180335,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -985,7 +985,7 @@
     "max_centroids": 400,
     "num_centroids": 400,
     "total_tokens": 16000,
-    "recall": 0.04666044935365467,
+    "recall": 0.03076482860180335,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -995,7 +995,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.025943366902391816,
+    "recall": 0.010047746150540498,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -1005,7 +1005,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.025943366902391816,
+    "recall": 0.010047746150540498,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -1015,7 +1015,7 @@
     "max_centroids": 160,
     "num_centroids": 160,
     "total_tokens": 16000,
-    "recall": 0.025943366902391816,
+    "recall": 0.010047746150540498,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -1025,7 +1025,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.01754996862019003,
+    "recall": 0.0016543478683387104,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -1035,7 +1035,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.01754996862019003,
+    "recall": 0.0016543478683387104,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -1045,7 +1045,7 @@
     "max_centroids": 80,
     "num_centroids": 80,
     "total_tokens": 16000,
-    "recall": 0.01754996862019003,
+    "recall": 0.0016543478683387104,
     "method": "StreamingLLM",
     "run": 2
   },
@@ -1055,7 +1055,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.008486783392644387,
+    "recall": 0.0,
     "method": "StreamingLLM",
     "run": 0
   },
@@ -1065,7 +1065,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.008486783392644387,
+    "recall": 0.0,
     "method": "StreamingLLM",
     "run": 1
   },
@@ -1075,7 +1075,7 @@
     "max_centroids": 16,
     "num_centroids": 16,
     "total_tokens": 16000,
-    "recall": 0.008486783392644387,
+    "recall": 0.0,
     "method": "StreamingLLM",
     "run": 2
   },
