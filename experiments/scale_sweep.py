@@ -60,11 +60,13 @@ def run_compression_experiment(compression_ratio: float, total_tokens: int = 160
     needles = keys[needle_indices].copy()
 
     # Run MP-KVM clustering
+    # Use larger window and higher threshold to preserve early tokens (needles)
+    early_portion = int(keys.shape[0] * 0.3)
     clusterer = OnlineManifoldClustering(
         dim=keys.shape[1],  # Use actual dimension from extracted KV vectors
         max_centroids=max_centroids,
-        window_size=min(1024, total_tokens // 4),  # Smaller window for better compression
-        similarity_threshold=0.5  # Lower threshold for better clustering
+        window_size=max(early_portion * 2, 2048),  # Larger window for needle preservation
+        similarity_threshold=0.8  # Higher threshold to preserve more distinct tokens
     )
 
     # Add data in batches
@@ -75,6 +77,9 @@ def run_compression_experiment(compression_ratio: float, total_tokens: int = 160
         batch_values = values[i:end_idx]
         weights = np.ones(len(batch_keys))
         clusterer.add(batch_keys, batch_values, weights)
+
+    # Force compression of all remaining data in the buffer
+    clusterer.force_compress_all()
 
     # Get centroids and evaluate
     centroids, counts, weights = clusterer.get_centroids()

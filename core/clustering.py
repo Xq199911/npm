@@ -354,6 +354,15 @@ class OnlineManifoldClustering:
         w = np.array(self.weights_buffer, dtype=float)
         return k, v, w
 
+    def force_compress_all(self):
+        """
+        Force compression of all remaining data in the buffer into centroids.
+        This ensures that all added data gets clustered, not just data that triggered automatic compression.
+        """
+        if len(self.keys_buffer) > 0:
+            # Compress all remaining data in the buffer
+            self._compress_oldest_batch(len(self.keys_buffer))
+
 
 __all__ = ["OnlineManifoldClustering"]
 

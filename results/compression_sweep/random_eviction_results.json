@@ -6,8 +6,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.525,
-    "recall_std": 0.05103103630798288,
+    "recall_mean": 0.5916666666666667,
+    "recall_std": 0.035843021946010904,
     "n_runs": 3
   },
   {
@@ -17,8 +17,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5083333333333334,
-    "recall_std": 0.07795119555779047,
+    "recall_mean": 0.5416666666666666,
+    "recall_std": 0.025685058345704066,
     "n_runs": 3
   },
   {
@@ -28,8 +28,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5875,
-    "recall_std": 0.08164965809277261,
+    "recall_mean": 0.5958333333333333,
+    "recall_std": 0.04249182927993988,
     "n_runs": 3
   },
   {
@@ -39,8 +39,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5083333333333333,
-    "recall_std": 0.05137011669140812,
+    "recall_mean": 0.5458333333333334,
+    "recall_std": 0.005892556509887927,
     "n_runs": 3
   },
   {
@@ -50,8 +50,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5208333333333334,
-    "recall_std": 0.031180478223116186,
+    "recall_mean": 0.5583333333333332,
+    "recall_std": 0.0328083661417159,
     "n_runs": 3
   },
   {
@@ -61,8 +61,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5208333333333334,
-    "recall_std": 0.04249182927993986,
+    "recall_mean": 0.5583333333333332,
+    "recall_std": 0.05803495115493381,
     "n_runs": 3
   },
   {
@@ -72,8 +72,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5333333333333333,
-    "recall_std": 0.07240894665409489,
+    "recall_mean": 0.5499999999999999,
+    "recall_std": 0.046770717334674264,
     "n_runs": 3
   },
   {
@@ -83,8 +83,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.55,
-    "recall_std": 0.07144345083117605,
+    "recall_mean": 0.6,
+    "recall_std": 0.010206207261596585,
     "n_runs": 3
   },
   {
@@ -94,8 +94,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5916666666666667,
-    "recall_std": 0.011785113019775804,
+    "recall_mean": 0.5583333333333333,
+    "recall_std": 0.04124789556921531,
     "n_runs": 3
   }
 ]
