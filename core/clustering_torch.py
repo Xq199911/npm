@@ -116,18 +116,44 @@ class TorchOnlineManifoldCluster:
         nearest = torch.argmin(dists, dim=1)
         nearest_dist = dists[torch.arange(n, device=self.device), nearest]
 
-        for i in range(n):
-            d = float(nearest_dist[i].item())
-            idx = int(nearest[i].item())
-            w = float(weights[i].item())
-            v = vectors[i].detach().clone()
-            if d <= float(similarity_threshold):
-                # update sums and counts in-place on GPU
-                self._sums[idx] = (self._sums[idx] + v * w).detach()
-                self._counts[idx] = self._counts[idx] + w
-            else:
-                self._sums.append((v * w).detach())
-                self._counts.append(w)
+        # Vectorized assignment: determine which vectors should merge vs create new centroids
+        should_merge = nearest_dist <= float(similarity_threshold)
+        should_create = ~should_merge
+
+        # Handle merging vectors (vectorized)
+        if should_merge.any():
+            merge_indices = nearest[should_merge]
+            merge_vectors = vectors[should_merge]
+            merge_weights = weights[should_merge]
+
+            # Use scatter_add for efficient accumulation
+            # First, prepare tensors for scatter operations
+            n_merging = merge_vectors.shape[0]
+            m = centroids.shape[0]
+
+            # Create update tensors
+            sum_updates = torch.zeros((m, self.dim), device=self.device, dtype=self.dtype)
+            count_updates = torch.zeros((m,), device=self.device, dtype=self.dtype)
+
+            # Scatter add the weighted vectors and counts
+            sum_updates.scatter_add_(0, merge_indices.unsqueeze(-1).expand(-1, self.dim), merge_vectors * merge_weights.unsqueeze(-1))
+            count_updates.scatter_add_(0, merge_indices, merge_weights)
+
+            # Apply updates to existing centroids
+            for idx in range(m):
+                if count_updates[idx] > 0:
+                    self._sums[idx] = (self._sums[idx] + sum_updates[idx]).detach()
+                    self._counts[idx] = self._counts[idx] + float(count_updates[idx].item())
+
+        # Handle creating new centroids (append new ones)
+        if should_create.any():
+            new_vectors = vectors[should_create]
+            new_weights = weights[should_create]
+
+            # Vectorized append of new centroids
+            for i in range(new_vectors.shape[0]):
+                self._sums.append((new_vectors[i] * new_weights[i]).detach())
+                self._counts.append(float(new_weights[i].item()))
 
         if self.persistence_decay < 1.0:
             self._counts = [c * self.persistence_decay for c in self._counts]
