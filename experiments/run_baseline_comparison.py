@@ -29,7 +29,8 @@ class BaselineMethod:
         self.max_memory_size = max_memory_size
         self.dim = dim
 
-    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray) -> Dict:
+    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray,
+                             context_text: Optional[str] = None, input_ids: Optional[np.ndarray] = None) -> Dict:
         """Compress KV cache and evaluate needle recovery. Returns metrics dict."""
         raise NotImplementedError
 
@@ -37,7 +38,8 @@ class BaselineMethod:
 class NoCompressionBaseline(BaselineMethod):
     """Full KV cache - no compression."""
 
-    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray) -> Dict:
+    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray,
+                             context_text: Optional[str] = None, input_ids: Optional[np.ndarray] = None) -> Dict:
         recall = evaluate_recall(keys, needles)
         return {
             "method": "No Compression",
@@ -54,7 +56,8 @@ class RandomEvictionBaseline(BaselineMethod):
         super().__init__(max_memory_size, dim)
         self.target_ratio = target_ratio
 
-    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray) -> Dict:
+    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray,
+                             context_text: Optional[str] = None, input_ids: Optional[np.ndarray] = None) -> Dict:
         target_size = int(len(keys) * self.target_ratio)
         if target_size == 0:
             target_size = 1
@@ -103,54 +106,94 @@ class H2OBaseline(BaselineMethod):
                 print("H2O: Falling back to improved synthetic attention scores")
                 self.use_real_attention = False
 
-    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray) -> Dict:
+    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray,
+                             context_text: Optional[str] = None, input_ids: Optional[np.ndarray] = None) -> Dict:
         target_size = int(len(keys) * self.target_ratio)
         if target_size == 0:
             target_size = 1
 
         # Try to use real attention scores first
-        if self.use_real_attention:
+        if self.use_real_attention and (context_text is not None or input_ids is not None):
             self._setup_attention_extractor()
 
             if self._attention_extractor is not None:
                 try:
-                    # For real attention extraction, we need the actual input sequence
-                    # This is a limitation - we need the original text/context
-                    # For now, fall back to improved synthetic
-                    print("H2O: Real attention extraction requires original context - using improved synthetic")
-                    pass
+                    print("H2O: Attempting real attention score extraction...")
+
+                    # Convert input_ids to torch tensor if needed
+                    if input_ids is not None:
+                        if isinstance(input_ids, np.ndarray):
+                            input_ids_tensor = torch.from_numpy(input_ids).to(self._attention_extractor.device)
+                        else:
+                            input_ids_tensor = input_ids.to(self._attention_extractor.device)
+                    elif context_text is not None:
+                        # Tokenize the context text
+                        inputs = self._attention_extractor.tokenizer(context_text, return_tensors="pt")
+                        input_ids_tensor = inputs["input_ids"].to(self._attention_extractor.device)
+                    else:
+                        raise ValueError("Either context_text or input_ids must be provided for real attention extraction")
+
+                    # Extract real attention scores
+                    attention_scores = self._attention_extractor.extract_attention_scores(
+                        input_ids_tensor, list(range(len(keys)))  # Extract attention for all positions
+                    )
+
+                    if attention_scores:
+                        # Use attention scores from the last layer
+                        final_layer_attention = attention_scores[-1]  # (seq_len, seq_len)
+
+                        # Compute cumulative attention scores for each token (Heavy Hitters Oracle)
+                        # Sum attention received by each token from all other tokens
+                        token_attention_scores = final_layer_attention.sum(axis=0)  # Sum across query positions
+
+                        # Normalize to [0,1] range for importance scoring
+                        if token_attention_scores.max() > 0:
+                            importance_scores = token_attention_scores / token_attention_scores.max()
+                        else:
+                            importance_scores = np.ones(len(keys), dtype=float) / len(keys)
+
+                        print(f"H2O: Successfully extracted real attention scores from {len(attention_scores)} layers")
+                    else:
+                        raise ValueError("No attention scores extracted")
+
                 except Exception as e:
                     print(f"H2O: Real attention extraction failed: {e}")
                     self.use_real_attention = False
+                    importance_scores = None
+            else:
+                importance_scores = None
+        else:
+            importance_scores = None
 
-        # IMPROVED SYNTHETIC ATTENTION SCORES (better than original random)
-        # Based on linguistic patterns: punctuation, named entities, and semantic importance
-        seq_len = len(keys)
-        np.random.seed(42)
+        # Fall back to synthetic if real attention extraction failed or not requested
+        if importance_scores is None:
+            print("H2O: Using improved synthetic attention scores")
+            seq_len = len(keys)
+            np.random.seed(42)
 
-        # Base importance scores with linguistic patterns
-        importance_scores = np.ones(seq_len, dtype=float)
+            # Base importance scores with linguistic patterns
+            importance_scores = np.ones(seq_len, dtype=float)
 
-        # Punctuation and structural tokens get higher importance (linguistic pattern)
-        # Assume some positions are likely to be punctuation (every ~20-30 tokens)
-        punctuation_pattern = np.sin(np.arange(seq_len) * 0.2) > 0.7  # Periodic punctuation
-        importance_scores[punctuation_pattern] *= 2.0
+            # Punctuation and structural tokens get higher importance (linguistic pattern)
+            # Assume some positions are likely to be punctuation (every ~20-30 tokens)
+            punctuation_pattern = np.sin(np.arange(seq_len) * 0.2) > 0.7  # Periodic punctuation
+            importance_scores[punctuation_pattern] *= 2.0
 
-        # Named entities and important tokens (clustered importance)
-        # Simulate that some regions have higher semantic importance
-        for center in np.linspace(0, seq_len, 10, dtype=int):
-            if center < seq_len:
-                # Gaussian importance around semantic centers
-                distances = np.abs(np.arange(seq_len) - center)
-                gaussian_boost = np.exp(-distances**2 / (seq_len/20)**2)
-                importance_scores += gaussian_boost * 1.5
+            # Named entities and important tokens (clustered importance)
+            # Simulate that some regions have higher semantic importance
+            for center in np.linspace(0, seq_len, 10, dtype=int):
+                if center < seq_len:
+                    # Gaussian importance around semantic centers
+                    distances = np.abs(np.arange(seq_len) - center)
+                    gaussian_boost = np.exp(-distances**2 / (seq_len/20)**2)
+                    importance_scores += gaussian_boost * 1.5
 
-        # Add heavy-tailed noise (power law distribution for attention)
-        heavy_tail_noise = np.random.power(0.7, seq_len)  # Less extreme than original 0.5
-        importance_scores *= (1.0 + heavy_tail_noise * 0.5)
+            # Add heavy-tailed noise (power law distribution for attention)
+            heavy_tail_noise = np.random.power(0.7, seq_len)  # Less extreme than original 0.5
+            importance_scores *= (1.0 + heavy_tail_noise * 0.5)
 
-        # Normalize to [0,1]
-        importance_scores = importance_scores / importance_scores.max()
+            # Normalize to [0,1]
+            importance_scores = importance_scores / importance_scores.max()
 
         # Keep top-k most important tokens
         top_indices = np.argsort(importance_scores)[-target_size:]
@@ -176,7 +219,8 @@ class StreamingLLMBaseline(BaselineMethod):
         self.target_ratio = target_ratio
         self.sink_size = sink_size
 
-    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray) -> Dict:
+    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray,
+                             context_text: Optional[str] = None, input_ids: Optional[np.ndarray] = None) -> Dict:
         total_tokens = len(keys)
         target_size = int(total_tokens * self.target_ratio)
         if target_size == 0:
@@ -214,7 +258,8 @@ class MPKVMBaseline(BaselineMethod):
         self.target_ratio = target_ratio
         self._use_real_model = use_real_model
 
-    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray) -> Dict:
+    def compress_and_evaluate(self, keys: np.ndarray, values: np.ndarray, needles: np.ndarray,
+                             context_text: Optional[str] = None, input_ids: Optional[np.ndarray] = None) -> Dict:
         target_size = int(len(keys) * self.target_ratio)
         if target_size == 0:
             target_size = 1
@@ -348,6 +393,10 @@ def run_baseline_comparison(args):
             context_text = create_long_context_text(length=target_length)
             keys, values = extractor.extract_kv_from_text(context_text, max_length=target_length)
 
+            # Store context text and input_ids for real attention extraction
+            context_text_for_baselines = context_text
+            input_ids_for_baselines = extractor.extract_input_ids(context_text, max_length=target_length)
+
             # Create needles from a subset of the real KV data
             n_needles = min(args.n_needles, keys.shape[0] // 10)
             needle_indices = np.random.RandomState(args.seed).choice(keys.shape[0], size=n_needles, replace=False)
@@ -395,6 +444,10 @@ def run_baseline_comparison(args):
 
         print(f"Using synthetic data: {keys.shape[0]} KV pairs, {n_needles} needles")
 
+        # For synthetic data, we don't have real context, so set to None
+        context_text_for_baselines = None
+        input_ids_for_baselines = None
+
     # Initialize baseline methods
     use_real_model = getattr(args, 'use_real_model', False)
     baselines = [
@@ -405,11 +458,20 @@ def run_baseline_comparison(args):
         MPKVMBaseline(args.max_memory_size, args.dim, args.compression_ratio, use_real_model),
     ]
 
+    # Prepare context information for real attention extraction
+    context_info = {}
+    if hasattr(args, 'use_real_model') and args.use_real_model:
+        context_info['context_text'] = context_text_for_baselines
+        context_info['input_ids'] = input_ids_for_baselines
+    else:
+        context_info['context_text'] = None
+        context_info['input_ids'] = None
+
     results = []
     for baseline in baselines:
         print(f"  Testing {baseline.__class__.__name__}...")
         start_time = time.time()
-        result = baseline.compress_and_evaluate(keys, values, needles)
+        result = baseline.compress_and_evaluate(keys, values, needles, **context_info)
         result["runtime_seconds"] = time.time() - start_time
         results.append(result)
         print(f"  {baseline.__class__.__name__}: recall={result['recall']:.3f}, ratio={result['compression_ratio']:.2f}")

@@ -165,24 +165,27 @@ class MPKVMManager:
         # Update the processed length
         self._processed_lengths[length_key] = end_idx
 
-    def get_layer_centroids(self, layer_idx: int, head_idx: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def get_layer_centroids(self, layer_idx: int, head_idx: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         if layer_idx not in self.layers:
-            return np.zeros((0, self.dim), dtype=np.float32), np.array([], dtype=int), np.array([], dtype=float)
+            empty = np.zeros((0, self.dim), dtype=np.float32)
+            return empty, empty, np.array([], dtype=int), np.array([], dtype=float)
 
         if self.per_head_clustering:
             if head_idx is None:
                 # Return centroids from first head as default, or merge across heads
                 if isinstance(self.layers[layer_idx], list) and len(self.layers[layer_idx]) > 0:
-                    return self.layers[layer_idx][0].get_centroids()
+                    return self.layers[layer_idx][0].get_key_value_centroids()
                 else:
-                    return np.zeros((0, self.dim), dtype=np.float32), np.array([], dtype=int), np.array([], dtype=float)
+                    empty = np.zeros((0, self.dim), dtype=np.float32)
+                    return empty, empty, np.array([], dtype=int), np.array([], dtype=float)
             else:
                 if isinstance(self.layers[layer_idx], list) and head_idx < len(self.layers[layer_idx]):
-                    return self.layers[layer_idx][head_idx].get_centroids()
+                    return self.layers[layer_idx][head_idx].get_key_value_centroids()
                 else:
-                    return np.zeros((0, self.dim), dtype=np.float32), np.array([], dtype=int), np.array([], dtype=float)
+                    empty = np.zeros((0, self.dim), dtype=np.float32)
+                    return empty, empty, np.array([], dtype=int), np.array([], dtype=float)
         else:
-            return self.layers[layer_idx].get_centroids()
+            return self.layers[layer_idx].get_key_value_centroids()
 
     def record_attention(self, layer_idx: int, attn_weights_np: np.ndarray) -> None:
         """

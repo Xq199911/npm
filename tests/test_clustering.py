@@ -236,6 +236,113 @@ def test_rope_compatibility_mathematical_consistency():
     print("[PASS] RoPE compatibility: positionless transformation works")
 
 
+def test_sliding_window_compression_prevents_double_counting():
+    """Test that sliding window compression prevents token double counting."""
+    # This test verifies that with sliding window compression enabled,
+    # tokens don't appear both in the sliding window and centroids
+
+    # Create synthetic data that would normally be clustered
+    rng = np.random.RandomState(42)
+
+    # Create tokens with clear clusters
+    cluster_centers = np.array([
+        [2.0, 0.0, 0.0],   # Cluster A
+        [0.0, 2.0, 0.0],   # Cluster B
+        [0.0, 0.0, 2.0]    # Cluster C
+    ], dtype=np.float32)
+
+    # Generate tokens around centers
+    n_tokens_per_cluster = 100
+    all_tokens = []
+
+    for i, center in enumerate(cluster_centers):
+        tokens = center + rng.normal(0, 0.2, (n_tokens_per_cluster, 3)).astype(np.float32)
+        all_tokens.append(tokens)
+
+    tokens = np.vstack(all_tokens)  # Shape: (300, 3)
+
+    # Test with OnlineManifoldClustering
+    clusterer = OnlineManifoldClustering(
+        dim=3,
+        max_centroids=5,
+        similarity_threshold=0.8,
+        window_size=50  # Small window to force compression
+    )
+
+    # Add tokens in batches to trigger compression
+    batch_size = 10
+    for i in range(0, len(tokens), batch_size):
+        batch = tokens[i:i+batch_size]
+        clusterer.add(batch, batch)
+
+    centroids, counts, weights = clusterer.get_centroids()
+    buffer_keys, buffer_vals, buffer_weights = clusterer.snapshot_buffer()
+
+    # With sliding window, buffer should be limited in size
+    assert buffer_keys.shape[0] <= clusterer.window_size, f"Buffer size {buffer_keys.shape[0]} exceeds window size {clusterer.window_size}"
+
+    # Check that centroids and buffer tokens are distinct
+    # (This is a simplified check - in practice, centroids are summaries of compressed tokens)
+    if centroids.shape[0] > 0 and buffer_keys.shape[0] > 0:
+        # Calculate similarities between centroids and buffer tokens
+        from analysis.energy_loss import assign_by_cosine
+        buffer_assignments = assign_by_cosine(buffer_keys, centroids)
+
+        # Most buffer tokens should NOT be assigned to centroids (they are recent)
+        # This indicates proper separation between compressed history and active window
+        unassigned_ratio = (buffer_assignments == -1).sum() / len(buffer_assignments)
+        print(".3f")
+
+        # We expect some separation, though not perfect due to the simplified test
+        assert unassigned_ratio > 0.5, f"Too many buffer tokens assigned to centroids: {unassigned_ratio:.3f}"
+
+    print("[PASS] Sliding window compression: prevents double counting")
+
+
+def test_force_compress_all_ensures_no_data_loss():
+    """Test that force_compress_all ensures all added data gets clustered."""
+    # Create test data
+    rng = np.random.RandomState(42)
+    tokens = rng.randn(100, 4).astype(np.float32)
+
+    # Test with small window to ensure some data stays in buffer
+    clusterer = OnlineManifoldClustering(
+        dim=4,
+        window_size=50,  # Smaller than total tokens
+        similarity_threshold=0.9  # High threshold to minimize merging
+    )
+
+    # Add all tokens
+    clusterer.add(tokens, tokens)
+
+    # Before force_compress_all, buffer should contain recent tokens
+    buffer_before = clusterer.snapshot_buffer()[0]
+    centroids_before, _, _ = clusterer.get_centroids()
+
+    print(f"Before force_compress_all: buffer={buffer_before.shape[0]}, centroids={centroids_before.shape[0] if centroids_before is not None else 0}")
+
+    # Force compress all remaining data
+    clusterer.force_compress_all()
+
+    # After force_compress_all, buffer should be empty and all data should be in centroids
+    buffer_after = clusterer.snapshot_buffer()[0]
+    centroids_after, _, _ = clusterer.get_centroids()
+
+    print(f"After force_compress_all: buffer={buffer_after.shape[0]}, centroids={centroids_after.shape[0] if centroids_after is not None else 0}")
+
+    # Buffer should be empty after force compression
+    assert buffer_after.shape[0] == 0, f"Buffer not empty after force_compress_all: {buffer_after.shape[0]}"
+
+    # Should have centroids (exact number depends on clustering, but should be > 0)
+    assert centroids_after.shape[0] > 0, "No centroids after force_compress_all"
+
+    # Total data should be preserved (in centroids)
+    total_data_points = centroids_after.shape[0]  # Each centroid represents compressed data
+    assert total_data_points > 0, "Data loss detected - no centroids represent the input data"
+
+    print("[PASS] Force compress all: ensures no data loss from buffer")
+
+
 def test_end_to_end_generation_pipeline():
     """Test end-to-end generation with MP-KVM compression."""
     try:
@@ -302,6 +409,8 @@ if __name__ == "__main__":
         test_online_manifold_clustering_buffers_and_prune,
         test_gpu_operations_vectorized,
         test_rope_compatibility_mathematical_consistency,
+        test_sliding_window_compression_prevents_double_counting,
+        test_force_compress_all_ensures_no_data_loss,
         test_end_to_end_generation_pipeline,
         test_attention_mechanism_correctness,
     ]

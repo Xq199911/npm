@@ -155,11 +155,16 @@ class MPKVMGPUAggregator:
         if len(sum_k_list) == 0:
             # initialize from batch by promoting up to capacity vectors as initial centroids
             n_init = min(k_proc.shape[0], self.max_gpu_centroids_per_layer)
-            for i in range(n_init):
-                # CRITICAL: Always initialize both K and V centroids together
-                sum_k_list.append(k_proc[i].clone())
-                sum_v_list.append(v_proc[i].clone())  # V centroids must be initialized
-                count_list.append(1.0)
+            # VECTORIZED INITIALIZATION: Use tensor slicing instead of Python loops
+            init_k = k_proc[:n_init].clone()  # (n_init, D)
+            init_v = v_proc[:n_init].clone()  # (n_init, D)
+            init_counts = torch.ones(n_init, dtype=torch.float32, device=k_proc.device)
+
+            # Convert to lists for storage (still needed for legacy compatibility)
+            sum_k_list.extend(init_k)
+            sum_v_list.extend(init_v)
+            count_list.extend(init_counts.tolist())
+
             if k_proc.shape[0] > n_init:
                 rem = k_proc[n_init:]
                 rem_v = v_proc[n_init:]
@@ -211,18 +216,15 @@ class MPKVMGPUAggregator:
                     create_vectors_k = k_proc[should_create]
                     create_vectors_v = v_proc[should_create]
 
-                    # Append new centroids
-                    for k_vec, v_vec in zip(create_vectors_k, create_vectors_v):
-                        sum_k_list.append(k_vec.clone())
-                        sum_v_list.append(v_vec.clone())
-                        count_list.append(1.0)
+                    # VECTORIZED APPEND: Extend lists with tensor data
+                    sum_k_list.extend(create_vectors_k)
+                    sum_v_list.extend(create_vectors_v)
+                    count_list.extend([1.0] * create_vectors_k.shape[0])
             else:
-                # fallback: just append
-                for i in range(k_proc.shape[0]):
-                    sum_k_list.append(k_proc[i].clone())
-                    # CRITICAL: Also append V centroids in fallback mode
-                    sum_v_list.append(v_proc[i].clone())  # V centroids must be appended even in fallback
-                    count_list.append(1.0)
+                # fallback: just append (vectorized)
+                sum_k_list.extend(k_proc.clone())
+                sum_v_list.extend(v_proc.clone())
+                count_list.extend([1.0] * k_proc.shape[0])
 
         # flush to CPU manager if too many GPU centroids
         if len(sum_k_list) >= self.max_gpu_centroids_per_layer:
@@ -406,11 +408,12 @@ class MPKVMGPUAggregatorOptimized(MPKVMGPUAggregator):
                                 storage.get("centroid_k_tensor", None) is not None)
         if not has_existing_centroids:
             n_init = min(k_flat.shape[0], self.max_gpu_centroids_per_layer)
-            for i in range(n_init):
-                # CRITICAL: Always initialize both K and V centroids together
-                sum_k_list.append(k_flat[i].clone())
-                sum_v_list.append(v_flat[i].clone())  # V centroids must be initialized
-                count_list.append(1.0)
+            # VECTORIZED INITIALIZATION: Use tensor slicing instead of loops
+            init_k = k_flat[:n_init].clone()
+            init_v = v_flat[:n_init].clone()
+            sum_k_list.extend(init_k)
+            sum_v_list.extend(init_v)
+            count_list.extend([1.0] * n_init)
             if k_flat.shape[0] <= n_init:
                 return
             rem_k = k_flat[n_init:]

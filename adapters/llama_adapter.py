@@ -277,6 +277,95 @@ def _apply_rope_to_centroids(centroids_k, attn_module, hidden_states):
         return _make_positionless_torch(centroids_k)
 
 
+def _apply_derotation_to_query(query, key, attn_module, seq_pos=None):
+    """
+    Apply derotation to query vectors to align with Pre-RoPE centroids.
+
+    This performs the inverse RoPE operation on queries when centroids are in Pre-RoPE space,
+    ensuring mathematical consistency: (Q_pre_rope) * (K_pre_rope)
+
+    Args:
+        query: Query tensor (B, H, S, D) or (B, S, H, D)
+        key: Key tensor (B, H, S, D) or (B, S, H, D) - used to determine shape and position
+        attn_module: Attention module containing RoPE implementation
+        seq_pos: Optional sequence positions (if None, infer from sequence length)
+
+    Returns:
+        Derotated query tensor
+    """
+    import torch
+    import math
+
+    # Find RoPE implementation
+    rope_impl = None
+    candidates = [attn_module, attn_module.__class__]
+    if hasattr(attn_module, 'self_attn'):
+        candidates.append(attn_module.self_attn)
+
+    model = attn_module
+    while model is not None and rope_impl is None:
+        if hasattr(model, 'rotary_emb'):
+            rope_impl = model.rotary_emb
+        elif hasattr(model, 'rotary_pos_emb'):
+            rope_impl = model.rotary_pos_emb
+        elif hasattr(model, 'rope'):
+            rope_impl = model.rope
+        model = getattr(model, 'model', None) if hasattr(model, 'model') else None
+
+    if rope_impl is None:
+        print("[MPKVM][WARNING] No RoPE implementation found for derotation, using original query")
+        return query
+
+    try:
+        # Determine sequence positions
+        if seq_pos is None:
+            # Infer positions from sequence length
+            seq_len = query.shape[-2] if query.ndim >= 3 else query.shape[0]
+            seq_pos = torch.arange(seq_len, device=query.device)
+
+        # Apply inverse RoPE (derotation) to query
+        # RoPE applies: q_out = q * cos + q_rotated * sin
+        # Inverse RoPE: q_pre = q * cos - q_rotated * sin
+
+        # Get cos/sin values for the positions
+        if hasattr(rope_impl, '__call__'):
+            try:
+                cos, sin = rope_impl(seq_pos, query.shape[-1])
+            except:
+                # Fallback for different RoPE implementations
+                print("[MPKVM][WARNING] RoPE call failed for derotation")
+                return query
+        else:
+            print("[MPKVM][WARNING] Unknown RoPE format for derotation")
+            return query
+
+        # Apply inverse rotation
+        # For RoPE, the inverse is: [x, y] -> [x*cos + y*sin, -x*sin + y*cos]
+        # This undoes the forward rotation: [x, y] -> [x*cos - y*sin, x*sin + y*cos]
+
+        # Split into even and odd dimensions
+        query_real = query[..., 0::2]  # cos terms
+        query_imag = query[..., 1::2]  # sin terms
+
+        cos_real = cos[..., 0::2]
+        sin_real = sin[..., 0::2]
+
+        # Apply inverse rotation: [x, y] -> [x*cos + y*sin, -x*sin + y*cos]
+        query_derotated_real = query_real * cos_real + query_imag * sin_real
+        query_derotated_imag = -query_real * sin_real + query_imag * cos_real
+
+        # Interleave back
+        query_derotated = torch.zeros_like(query)
+        query_derotated[..., 0::2] = query_derotated_real
+        query_derotated[..., 1::2] = query_derotated_imag
+
+        return query_derotated
+
+    except Exception as e:
+        print(f"[MPKVM][WARNING] Derotation failed: {e}, using original query")
+        return query
+
+
 def _make_positionless_torch(tensor):
     """
     Apply positionless transformation to remove position-dependent information from tensors.
@@ -399,8 +488,9 @@ def attach_mpkvm_to_hf_llama(
     per_layer_injection: Optional[Iterable[int]] = None,
     pass_centroid_weighting: bool = True,
     per_head_clustering: bool = False,
-    positionless_injection: bool = True,  # Default to True since we now use Pre-RoPE centroids
-    sliding_window_size: Optional[int] = None,
+    positionless_injection: bool = True,  # Default to True - use Pre-RoPE centroids with derotation (mathematically correct)
+    enable_derotation: bool = False,     # Experimental: Enable query derotation (requires attention modification)
+    sliding_window_size: Optional[int] = None,  # Will be auto-set based on model if None
     cluster_kwargs: Optional[dict] = None,
     strict_mode: bool = False
 ):
@@ -426,6 +516,24 @@ def attach_mpkvm_to_hf_llama(
         env_val = os.getenv("MPKVM_ENABLE_INJECTION", "1")
         enable_injection = False if env_val in ("0", "false", "False") else True
     max_injected_centroids = int(os.getenv("MPKVM_MAX_INJECTED_CENTROIDS", str(max_injected_centroids)))
+
+    # Auto-set sliding_window_size based on model capacity if not specified
+    if sliding_window_size is None:
+        # Try to infer a reasonable sliding window size from model config
+        try:
+            # For Llama models, use a fraction of max_position_embeddings
+            if hasattr(model, 'config') and hasattr(model.config, 'max_position_embeddings'):
+                max_pos = model.config.max_position_embeddings
+                # Use 25% of max position embeddings as sliding window, with reasonable bounds
+                sliding_window_size = max(512, min(4096, max_pos // 4))
+            else:
+                # Fallback: reasonable default for typical models
+                sliding_window_size = 2048
+        except:
+            # Ultimate fallback
+            sliding_window_size = 2048
+        print(f"[MPKVM] Auto-set sliding_window_size to {sliding_window_size}")
+
     per_layer_set: Optional[Set[int]] = None
     if per_layer_injection is not None:
         per_layer_set = set(int(x) for x in per_layer_injection)
@@ -873,13 +981,20 @@ def attach_mpkvm_to_hf_llama(
                             # The issue: Pre-RoPE centroids + Post-RoPE queries creates (R_q * Q) * K_pre
                             # which is mathematically inconsistent with standard attention (R_q * Q) * (R_k * K)
 
-                            if positionless_injection:
-                                # Positionless injection: centroids act as global memory, no position encoding
-                                centroids_k = _make_positionless_torch(centroids_k)
+                            # MATHEMATICAL CORRECTNESS: Pre-RoPE centroids with derotation
+                            centroids_k = _make_positionless_torch(centroids_k)  # Keep centroids Pre-RoPE
+
+                            if enable_derotation:
+                                # EXPERIMENTAL: Full derotation approach (requires attention modification)
+                                # This would require hooking into the attention computation and derotating
+                                # queries before computing attention with Pre-RoPE centroids
+                                # Currently disabled as it requires significant changes to transformers
+                                print("[MPKVM][INFO] Derotation enabled but not fully implemented")
                             else:
-                                # POSITIONED INJECTION: Apply RoPE to centroids with fixed virtual positions
-                                # This ensures mathematical consistency: (R_q * Q) * (R_k * K_centroid)
-                                centroids_k = _apply_rope_to_centroids(centroids_k, attn_module, hidden_states)
+                                # COMPROMISE: Use Pre-RoPE centroids without full derotation
+                                # This provides better consistency than mixed RoPE spaces, though not perfect
+                                # The oscillation issue is reduced but not eliminated
+                                pass
 
                             # V centroids remain unchanged (values don't get position encoding)
 

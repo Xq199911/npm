@@ -111,6 +111,13 @@ class RealModelKVExtractor:
 
         print(f"KV Extractor initialized: {self.num_layers} layers, hidden_size={self.hidden_size}")
 
+    def extract_input_ids(self, text: str, max_length: int = 2048) -> np.ndarray:
+        """
+        Extract input_ids from text for attention score computation.
+        """
+        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=max_length)
+        return inputs["input_ids"].cpu().numpy()
+
     def extract_kv_from_text(self, text: str, max_length: int = 2048, layer_idx: int = 0) -> Tuple[np.ndarray, np.ndarray]:
         """
         Extract KV vectors from model attention layers for given text.

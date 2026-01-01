@@ -109,7 +109,7 @@ def poc_run(seed: int = 0, n_tokens: int = 2048, dim: int = 128, compress_batch:
     attn_scores /= attn_scores.sum()
 
     # Track centroids evolution over time
-    m = OnlineManifoldClustering(dim=dim, window_size=1024, max_centroids=128, metric="cosine", similarity_threshold=0.7)
+    m = OnlineManifoldClustering(dim=dim, window_size=1024, max_centroids=128, metric="cosine", similarity_threshold=0.9)
 
     centroids_history = []
     # Feed in chunks and track centroid evolution

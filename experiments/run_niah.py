@@ -74,7 +74,7 @@ def run_mp_kvm_experiment(seq_length: int, needle_depth: float, n_needles: int =
 
     # Run MP-KVM clustering
     clusterer = OnlineManifoldClustering(
-        dim=128,
+        dim=keys.shape[1],  # Use actual KV dimension instead of hardcoded 128
         max_centroids=1024,
         window_size=4096,
         similarity_threshold=0.8
@@ -88,6 +88,9 @@ def run_mp_kvm_experiment(seq_length: int, needle_depth: float, n_needles: int =
         batch_values = values[i:end_idx]
         weights = np.ones(len(batch_keys))
         clusterer.add(batch_keys, batch_values, weights)
+
+    # Force compression of all remaining data in buffer
+    clusterer.force_compress_all()
 
     # Get centroids and evaluate recall
     centroids, _, _ = clusterer.get_centroids()

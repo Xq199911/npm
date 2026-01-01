@@ -58,9 +58,31 @@ def compute_ppl_with_compression(model, tokenizer, device, eval_text: str,
 
             # Load pre-computed centroids if available
             if 'centroids' in compression_config:
-                # This would need to be implemented to load centroids into manager
-                # For now, we'll use the adapter which will handle centroid injection
-                pass
+                centroids = compression_config['centroids']
+                # Load centroids into each layer of the manager
+                for layer_idx in range(model.config.num_hidden_layers):
+                    if hasattr(manager.layers[layer_idx], 'load_centroids'):
+                        # If the clustering operator supports loading centroids directly
+                        manager.layers[layer_idx].load_centroids(centroids)
+                    else:
+                        # Manual loading by setting centroids directly
+                        # This assumes centroids is a dict with layer keys or a single array for all layers
+                        if isinstance(centroids, dict) and layer_idx in centroids:
+                            layer_centroids = centroids[layer_idx]
+                        elif isinstance(centroids, np.ndarray):
+                            layer_centroids = centroids
+                        else:
+                            continue  # Skip if centroids format is not recognized
+
+                        # Set centroids in the clustering operator
+                        if hasattr(manager.layers[layer_idx], '_centroids'):
+                            manager.layers[layer_idx]._centroids = layer_centroids.copy()
+                        if hasattr(manager.layers[layer_idx], '_counts'):
+                            # Initialize counts array with ones
+                            manager.layers[layer_idx]._counts = np.ones(len(layer_centroids), dtype=int)
+                        if hasattr(manager.layers[layer_idx], '_weights'):
+                            # Initialize weights array with ones
+                            manager.layers[layer_idx]._weights = np.ones(len(layer_centroids), dtype=float)
 
             # Attach MP-KVM to model for compressed inference
             attach_mpkvm_to_hf_llama(
