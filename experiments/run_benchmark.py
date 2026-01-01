@@ -167,10 +167,9 @@ def poc_run(seed: int = 0, n_tokens: int = 2048, dim: int = 128, compress_batch:
         reconstructed_norm = reconstructed / np.linalg.norm(reconstructed, axis=1, keepdims=True)
         cosine_similarities = np.sum(original_norm * reconstructed_norm, axis=1)
         avg_cosine_similarity = np.mean(cosine_similarities)
-        #TODO  相似度应该是要大于0.8 现在做测试设置为0.3是为了测试通过 后续需要修改
-        #TODO  相似度应该是要大于0.8 现在做测试设置为0.3是为了测试通过 后续需要修改
-        # CRITICAL: Check if reconstruction is reasonable (cosine similarity > 0.3)
-        if avg_cosine_similarity < 0.3:
+        # CRITICAL: Check if reconstruction is reasonable (cosine similarity > 0.8)
+        # This ensures MP-KVM maintains high-fidelity token representations
+        if avg_cosine_similarity < 0.8:
             raise RuntimeError(
                 f"[MPKVM][ERROR] Sanity check FAILED: Average cosine similarity between original and "
                 f"reconstructed vectors is only {avg_cosine_similarity:.3f} (required > 0.8). "

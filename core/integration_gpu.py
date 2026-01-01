@@ -177,22 +177,44 @@ class MPKVMGPUAggregator:
                 c_norm = centroid_mean / (centroid_mean.norm(dim=1, keepdim=True) + 1e-12)
                 sims = torch.matmul(k_norm, c_norm.T)  # (N, C)
                 best_sim, best_idx = sims.max(dim=1)
-                # assign or create
-                for i in range(k_proc.shape[0]):
-                    sim = float(best_sim[i].item())
-                    idx = int(best_idx[i].item())
-                    if sim >= float(self.similarity_threshold):
-                        # merge into idx
-                        wk = k_proc[i]
-                        wv = v_proc[i]
-                        sum_k_list[idx] = sum_k_list[idx] + wk
-                        # CRITICAL: Also merge V centroids - no fallback to Key values
-                        sum_v_list[idx] = sum_v_list[idx] + wv  # V centroids must be properly accumulated
-                        count_list[idx] = count_list[idx] + 1.0
-                    else:
-                        sum_k_list.append(k_proc[i].clone())
-                        # CRITICAL: Also append V centroids when creating new centroids
-                        sum_v_list.append(v_proc[i].clone())  # V centroids must be appended
+                # VECTORIZED ASSIGNMENT: Use PyTorch operations instead of Python loops
+                # This eliminates the performance bottleneck and provides fair comparison
+
+                # Create masks for merge vs create decisions
+                should_merge = best_sim >= float(self.similarity_threshold)
+
+                if should_merge.any():
+                    # For vectors that should merge: accumulate into existing centroids
+                    merge_indices = best_idx[should_merge]
+                    merge_vectors_k = k_proc[should_merge]
+                    merge_vectors_v = v_proc[should_merge]
+
+                    # Use scatter_add for efficient accumulation
+                    # Convert sum_k_list to tensor for vectorized operations
+                    sum_k_tensor = torch.stack(sum_k_list, dim=0)  # (C, D)
+                    sum_v_tensor = torch.stack(sum_v_list, dim=0)  # (C, D)
+                    count_tensor = torch.tensor(count_list, device=sum_k_tensor.device, dtype=sum_k_tensor.dtype)
+
+                    # Accumulate using scatter_add
+                    sum_k_tensor.scatter_add_(0, merge_indices.unsqueeze(-1).expand(-1, sum_k_tensor.shape[-1]), merge_vectors_k)
+                    sum_v_tensor.scatter_add_(0, merge_indices.unsqueeze(-1).expand(-1, sum_v_tensor.shape[-1]), merge_vectors_v)
+                    count_tensor.scatter_add_(0, merge_indices, torch.ones_like(merge_indices, dtype=count_tensor.dtype))
+
+                    # Update the lists with modified tensors
+                    sum_k_list[:] = [sum_k_tensor[i] for i in range(len(sum_k_list))]
+                    sum_v_list[:] = [sum_v_tensor[i] for i in range(len(sum_v_list))]
+                    count_list[:] = count_tensor.tolist()
+
+                # For vectors that should create new centroids: append them
+                should_create = ~should_merge
+                if should_create.any():
+                    create_vectors_k = k_proc[should_create]
+                    create_vectors_v = v_proc[should_create]
+
+                    # Append new centroids
+                    for k_vec, v_vec in zip(create_vectors_k, create_vectors_v):
+                        sum_k_list.append(k_vec.clone())
+                        sum_v_list.append(v_vec.clone())
                         count_list.append(1.0)
             else:
                 # fallback: just append

@@ -183,6 +183,115 @@ def _process_kv_direct(manager: MPKVMManager, layer_idx: int, k_tensor, v_tensor
 
 
 
+def _apply_rope_to_centroids(centroids_k, attn_module, hidden_states):
+    """
+    Apply RoPE (Rotary Position Embedding) to centroids with fixed virtual positions.
+
+    This ensures mathematical consistency in attention computation:
+    Instead of (R_q * Q) * K_pre_rope, we get (R_q * Q) * (R_k * K_pre_rope)
+
+    Args:
+        centroids_k: Pre-RoPE centroids tensor (C, D) or (B, H, C, D)
+        attn_module: Attention module containing RoPE logic
+        hidden_states: Original hidden states to extract position information
+
+    Returns:
+        centroids_k with RoPE applied
+    """
+    import torch
+    import math
+
+    # Find RoPE implementation in the model
+    rope_impl = None
+
+    # Try different locations where RoPE might be implemented
+    candidates = [attn_module, attn_module.__class__]
+    if hasattr(attn_module, 'self_attn'):
+        candidates.append(attn_module.self_attn)
+
+    # Look for RoPE in the model hierarchy
+    model = attn_module
+    while model is not None and rope_impl is None:
+        if hasattr(model, 'rotary_emb'):
+            rope_impl = model.rotary_emb
+        elif hasattr(model, 'rotary_pos_emb'):
+            rope_impl = model.rotary_pos_emb
+        elif hasattr(model, 'rope'):
+            rope_impl = model.rope
+        model = getattr(model, 'model', None) if hasattr(model, 'model') else None
+
+    if rope_impl is None:
+        # Fallback: try to find RoPE in common transformer locations
+        try:
+            from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
+            rope_impl = apply_rotary_pos_emb
+        except ImportError:
+            # If no RoPE found, return centroids as-is (positionless)
+            print("[MPKVM][WARNING] No RoPE implementation found, using positionless centroids")
+            return _make_positionless_torch(centroids_k)
+
+    try:
+        # Determine virtual positions for centroids (fixed positions at the beginning)
+        # Centroids represent "global memory" - they should be treated as early tokens
+        if centroids_k.ndim == 2:
+            # (C, D) -> single head case
+            num_centroids = centroids_k.shape[0]
+            virtual_positions = torch.arange(num_centroids, device=centroids_k.device)
+            centroids_k_expanded = centroids_k.unsqueeze(0).unsqueeze(0)  # (1, 1, C, D)
+        elif centroids_k.ndim == 3:
+            # (B, C, D) -> batched single head
+            batch_size = centroids_k.shape[0]
+            num_centroids = centroids_k.shape[1]
+            virtual_positions = torch.arange(num_centroids, device=centroids_k.device)
+            virtual_positions = virtual_positions.unsqueeze(0).expand(batch_size, -1)  # (B, C)
+            centroids_k_expanded = centroids_k.unsqueeze(1)  # (B, 1, C, D)
+        else:
+            # (B, H, C, D) -> full multi-head
+            centroids_k_expanded = centroids_k
+
+        # Apply RoPE with virtual positions
+        if hasattr(rope_impl, '__call__'):
+            # Try to call RoPE directly
+            try:
+                cos, sin = rope_impl(virtual_positions, centroids_k_expanded.shape[-1])
+                centroids_k_rotated = rope_impl.apply_rotary_pos_emb(centroids_k_expanded, cos, sin)
+            except:
+                # Fallback: use positionless if RoPE application fails
+                print("[MPKVM][WARNING] RoPE application failed, using positionless centroids")
+                return _make_positionless_torch(centroids_k)
+        else:
+            # Fallback for different RoPE implementations
+            print("[MPKVM][WARNING] Unknown RoPE format, using positionless centroids")
+            return _make_positionless_torch(centroids_k)
+
+        # Return with proper shape
+        if centroids_k.ndim == 2:
+            return centroids_k_rotated.squeeze(0).squeeze(0)  # (C, D)
+        elif centroids_k.ndim == 3:
+            return centroids_k_rotated.squeeze(1)  # (B, C, D)
+        else:
+            return centroids_k_rotated  # (B, H, C, D)
+
+    except Exception as e:
+        print(f"[MPKVM][WARNING] RoPE application error: {e}, using positionless centroids")
+        return _make_positionless_torch(centroids_k)
+
+
+def _make_positionless_torch(tensor):
+    """
+    Apply positionless transformation to remove position-dependent information from tensors.
+
+    This is used for centroids that should act as global memory, independent of position.
+    For now, this is an identity transformation, but could be extended to apply
+    position-agnostic processing if needed.
+    """
+    import torch
+    # For positionless centroids, we currently return the tensor unchanged
+    # This represents centroids as global memory that can be accessed from any position
+    # Future improvements could include learned position-independent transformations
+    return tensor
+
+
 def _extract_pre_rope_key(hidden_states, attn_module, head_mean: bool = False):
     """
     Extract Pre-RoPE Key vectors from hidden states for semantic clustering.
@@ -759,12 +868,20 @@ def attach_mpkvm_to_hf_llama(
                             centroids_k = torch.from_numpy(centroids_k_np).to(device=device, dtype=k.dtype)
                             centroids_v = torch.from_numpy(centroids_v_np).to(device=device, dtype=v.dtype)
 
-                            # Handle RoPE positioning for centroids (critical for injection mode)
-                            # Centroids are aggregates of multiple tokens and don't have a single position
-                            # Option 1: positionless injection (current default) - centroids act as global memory
-                            # Option 2: positioned injection - centroids get position encodings (experimental)
+                            # Handle RoPE positioning for centroids (CRITICAL FIX for mathematical correctness)
+                            # Pre-RoPE centroids must be properly positioned for attention computation
+                            # The issue: Pre-RoPE centroids + Post-RoPE queries creates (R_q * Q) * K_pre
+                            # which is mathematically inconsistent with standard attention (R_q * Q) * (R_k * K)
+
                             if positionless_injection:
+                                # Positionless injection: centroids act as global memory, no position encoding
                                 centroids_k = _make_positionless_torch(centroids_k)
+                            else:
+                                # POSITIONED INJECTION: Apply RoPE to centroids with fixed virtual positions
+                                # This ensures mathematical consistency: (R_q * Q) * (R_k * K_centroid)
+                                centroids_k = _apply_rope_to_centroids(centroids_k, attn_module, hidden_states)
+
+                            # V centroids remain unchanged (values don't get position encoding)
 
                             # Augment current KV with centroids
                             k_aug, v_aug = augment_kv_with_centroids_torch(k, v, centroids_k=centroids_k, centroids_v=centroids_v)
