@@ -26,7 +26,7 @@ from core.mpkvm_cache import MPKVMCache
 def attach_mpkvm_cache_to_llama(
     model: Any,
     mpkvm_cache: MPKVMCache,
-    enable_derotation: bool = False
+    enable_derotation: bool = True  # Now enabled by default for correctness
 ):
     """
     Attach MP-KVM cache to a HuggingFace Llama model.
@@ -34,14 +34,29 @@ def attach_mpkvm_cache_to_llama(
     This replaces the model's default cache with MPKVMCache, providing
     automatic KV compression through manifold clustering.
 
+    CRITICAL: Now injects RoPE module reference for proper derotation during clustering.
+
     Args:
         model: HuggingFace Llama model
         mpkvm_cache: Pre-configured MPKVMCache instance
-        enable_derotation: Whether to apply query derotation (experimental)
+        enable_derotation: Whether to enable RoPE derotation (REQUIRED for correctness)
 
     Returns:
         None - modifies model in-place
     """
+    # CRITICAL FIX: Inject RoPE module reference for derotation
+    # This allows MPKVMCache to properly derotate vectors before clustering
+    if hasattr(model, 'model') and hasattr(model.model, 'rotary_emb'):
+        rotary_emb = model.model.rotary_emb
+        mpkvm_cache.rotary_emb = rotary_emb
+        print(f"[MPKVM] Injected RoPE module for derotation: {type(rotary_emb).__name__}")
+    elif hasattr(model, 'rotary_emb'):
+        rotary_emb = model.rotary_emb
+        mpkvm_cache.rotary_emb = rotary_emb
+        print(f"[MPKVM] Injected RoPE module for derotation: {type(rotary_emb).__name__}")
+    else:
+        print("[MPKVM][WARNING] Could not find RoPE module in model. Clustering may be mathematically incorrect.")
+
     # Store original cache if it exists
     original_cache = getattr(model, '_original_cache', None)
     if original_cache is None:
@@ -70,13 +85,14 @@ def attach_mpkvm_cache_to_llama(
     model._original_cache = original_cache
 
     if enable_derotation:
-        # Experimental: Apply query derotation for better RoPE alignment
+        # Apply query derotation for better RoPE alignment
         # This modifies attention computation to align queries with centroids
         _apply_query_derotation_to_model(model, mpkvm_cache)
 
     print(f"[MPKVM] Successfully attached MP-KVM cache to model")
     print(f"[MPKVM] Cache uses EMA decay: {mpkvm_cache.cluster_kwargs.get('ema_decay', 0.99)}")
     print(f"[MPKVM] Cache uses RoPE alignment: {mpkvm_cache.cluster_kwargs.get('use_rotary_alignment', True)}")
+    print(f"[MPKVM] RoPE derotation: {'ENABLED' if enable_derotation else 'DISABLED'}")
 
 
 def detach_mpkvm_cache_from_llama(model: Any):

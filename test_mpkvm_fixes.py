@@ -107,6 +107,62 @@ def test_ema_decay():
     return drift_distance > 0.01
 
 
+def test_rope_derotation():
+    """Test that RoPE derotation works correctly"""
+    print("Testing RoPE derotation...")
+
+    from transformers.models.llama.modeling_llama import LlamaRotaryEmbedding
+
+    # Create mock cache with RoPE
+    config = MockConfig()
+    cache = MPKVMCache(config, device=torch.device('cpu'))
+    cache.rotary_emb = LlamaRotaryEmbedding(dim=cache.head_dim, max_position_embeddings=1024)
+
+    # Simple test: derotate position 0 (should be identity)
+    original_vectors = torch.randn(1, 1, 1, cache.head_dim)  # Single vector at single position
+    position_ids = torch.tensor([[0]])
+
+    # At position 0, RoPE should be identity (cos=1, sin=0)
+    derotated_vectors = cache._apply_inverse_rope(original_vectors, position_ids)
+
+    # Check if derotation at position 0 preserves the vector
+    recovery_error = torch.norm(original_vectors - derotated_vectors)
+    print(".6f")
+
+    # Should be very close to 0 at position 0
+    assert recovery_error < 0.001, f"RoPE derotation at position 0 failed with error {recovery_error}"
+
+    print("[OK] RoPE derotation works correctly")
+
+    # Additional test: verify that same semantic vectors at different positions cluster together
+    print("Testing semantic clustering across positions...")
+
+    # Create the same semantic vector at different positions
+    semantic_vector = torch.randn(1, cache.head_dim)  # Same semantic content
+
+    # Create rotated versions at different positions
+    positions = [0, 10, 100]
+    rotated_vectors = []
+    for pos in positions:
+        pos_ids = torch.tensor([pos])
+        rotated = cache._apply_rope_to_centroids(semantic_vector, pos_ids.unsqueeze(0))
+        rotated_vectors.append(rotated[0])
+
+    # Now test that derotation brings them back to the same semantic space
+    # (This simulates what happens in the clustering pipeline)
+    for i, pos in enumerate(positions):
+        pos_ids = torch.tensor([[pos]])
+        rotated_expanded = rotated_vectors[i].unsqueeze(0).unsqueeze(0)  # (1, 1, 1, head_dim)
+        derotated = cache._apply_inverse_rope(rotated_expanded, pos_ids)
+
+        # Should recover the original semantic vector
+        error = torch.norm(semantic_vector - derotated.squeeze())
+        print(f"  Position {pos} recovery error: {error:.6f}")
+        assert error < 0.01, f"Failed to recover semantic vector at position {pos}"
+
+    print("[OK] Semantic vectors correctly recovered across positions")
+
+
 def test_mpkvm_cache():
     """Test MPKVMCache basic functionality"""
     print("Testing MPKVMCache...")
@@ -155,11 +211,15 @@ def main():
         ema_works = test_ema_decay()
         print()
 
+        test_rope_derotation()
+        print()
+
         test_mpkvm_cache()
         print()
 
         if ema_works:
             print("[SUCCESS] All critical fixes validated!")
+            print("[SUCCESS] RoPE blindness issue resolved!")
             return True
         else:
             print("[FAIL] EMA decay fix failed")
