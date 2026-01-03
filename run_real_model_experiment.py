@@ -5,11 +5,10 @@ This module provides utilities to extract real KV vectors from Llama models
 for use in compression experiments instead of synthetic data.
 """
 from __future__ import annotations
-import torch
+from typing import Tuple
 import numpy as np
+import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from typing import Tuple, Optional
-import os
 
 
 def setup_model_and_tokenizer(model_path: str, device: str = "cuda") -> Tuple:

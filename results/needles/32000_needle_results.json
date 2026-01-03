@@ -1,0 +1,52 @@
+{
+  "config": {
+    "total_tokens": 32000,
+    "dim": 128,
+    "n_clusters": 20,
+    "cluster_std": 0.5,
+    "n_needles": 160,
+    "max_memory_size": 65536,
+    "compression_ratio": 0.1,
+    "seed": 42,
+    "out": "results/needles/32000",
+    "use_real_model": true,
+    "model_path": "model/Llama-3.1-8B-Instruct"
+  },
+  "results": [
+    {
+      "method": "No Compression",
+      "recall": 1.0,
+      "memory_usage": 2766,
+      "compression_ratio": 1.0,
+      "runtime_seconds": 0.0060002803802490234
+    },
+    {
+      "method": "Random Eviction",
+      "recall": 0.175,
+      "memory_usage": 276,
+      "compression_ratio": 0.09978308026030369,
+      "runtime_seconds": 0.0010006427764892578
+    },
+    {
+      "method": "H2O (Heavy-Hitter)",
+      "recall": 0.14375,
+      "memory_usage": 276,
+      "compression_ratio": 0.09978308026030369,
+      "runtime_seconds": 0.0019991397857666016
+    },
+    {
+      "method": "StreamingLLM",
+      "recall": 0.15625,
+      "memory_usage": 276,
+      "compression_ratio": 0.09978308026030369,
+      "runtime_seconds": 0.0009996891021728516
+    },
+    {
+      "method": "MP-KVM (Ours)",
+      "recall": 0.975,
+      "memory_usage": 105,
+      "compression_ratio": 0.03796095444685466,
+      "runtime_seconds": 0.03802824020385742
+    }
+  ]
+}

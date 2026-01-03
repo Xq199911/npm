@@ -6,8 +6,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5916666666666667,
-    "recall_std": 0.035843021946010904,
+    "recall_mean": 0.5125000000000001,
+    "recall_std": 0.04448782605013046,
     "n_runs": 3
   },
   {
@@ -17,8 +17,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5416666666666666,
-    "recall_std": 0.025685058345704066,
+    "recall_mean": 0.5375,
+    "recall_std": 0.027003086243366076,
     "n_runs": 3
   },
   {
@@ -28,8 +28,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5958333333333333,
-    "recall_std": 0.04249182927993988,
+    "recall_mean": 0.5291666666666667,
+    "recall_std": 0.031180478223116183,
     "n_runs": 3
   },
   {
@@ -39,8 +39,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5458333333333334,
-    "recall_std": 0.005892556509887927,
+    "recall_mean": 0.5208333333333334,
+    "recall_std": 0.04823265376162596,
     "n_runs": 3
   },
   {
@@ -50,8 +50,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5583333333333332,
-    "recall_std": 0.0328083661417159,
+    "recall_mean": 0.5833333333333334,
+    "recall_std": 0.07660323462854267,
     "n_runs": 3
   },
   {
@@ -61,8 +61,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5583333333333332,
-    "recall_std": 0.05803495115493381,
+    "recall_mean": 0.5208333333333334,
+    "recall_std": 0.03584302194601095,
     "n_runs": 3
   },
   {
@@ -72,8 +72,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5499999999999999,
-    "recall_std": 0.046770717334674264,
+    "recall_mean": 0.5666666666666667,
+    "recall_std": 0.015590239111558084,
     "n_runs": 3
   },
   {
@@ -83,8 +83,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.6,
-    "recall_std": 0.010206207261596585,
+    "recall_mean": 0.5541666666666667,
+    "recall_std": 0.031180478223116207,
     "n_runs": 3
   },
   {
@@ -94,8 +94,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.5583333333333333,
-    "recall_std": 0.04124789556921531,
+    "recall_mean": 0.48333333333333334,
+    "recall_std": 0.03280836614171587,
     "n_runs": 3
   }
 ]

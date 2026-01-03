@@ -6,8 +6,8 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.6458333333333334,
-    "recall_std": 0.02946278254943948,
+    "recall_mean": 0.5875,
+    "recall_std": 0.01767766952966373,
     "n_runs": 3
   },
   {
@@ -17,7 +17,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -28,7 +28,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -39,7 +39,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -50,7 +50,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -61,7 +61,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -72,7 +72,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -83,7 +83,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   },
@@ -94,7 +94,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.625,
+    "recall_mean": 0.575,
     "recall_std": 0.0,
     "n_runs": 3
   }

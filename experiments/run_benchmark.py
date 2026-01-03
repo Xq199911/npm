@@ -213,6 +213,28 @@ def poc_main():
         visualize_kv_and_centroids(res["keys"][:1024], res["centroids"], save_path=os.path.join("figures", args.out))
         print(f"Saved manifold plot to figures/{args.out}")
 
+        # Save visualization data as JSON for generate_paper_figures.py
+        import json
+        synthetic_dir = os.path.join("results", "synthetic")
+        os.makedirs(synthetic_dir, exist_ok=True)
+        json_file = os.path.join(synthetic_dir, "manifold_topic_data.json")
+
+        # Convert numpy arrays to lists for JSON serialization
+        vis_data = res["visualization_data"]
+        json_data = {
+            "keys": res["keys"].tolist() if hasattr(res["keys"], 'tolist') else res["keys"],
+            "centroids": res["centroids"].tolist() if hasattr(res["centroids"], 'tolist') else res["centroids"],
+            "assignments": vis_data.get("assignments", []),
+            "cluster_labels": vis_data.get("cluster_labels", []),
+            "n_tokens": res["n_tokens"],
+            "dim": res["dim"],
+            "n_centroids": res["n_centroids"]
+        }
+
+        with open(json_file, 'w') as f:
+            json.dump(json_data, f, indent=2)
+        print(f"Saved manifold data to {json_file}")
+
 
 if __name__ == "__main__":
     main()

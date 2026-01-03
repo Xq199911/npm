@@ -6,7 +6,7 @@
     "max_centroids": 1600.0,
     "num_centroids": 1600.0,
     "total_tokens": 16000,
-    "recall_mean": 0.0,
+    "recall_mean": 0.075,
     "recall_std": 0.0,
     "n_runs": 3
   },

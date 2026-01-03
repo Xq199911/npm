@@ -31,7 +31,7 @@ def load_results_data():
     data = {}
 
     # Load baseline comparison
-    baseline_file = results_dir / "baseline" / "enhanced_baseline_results.json"
+    baseline_file = results_dir / "baseline_comparison" / "baseline_comparison_results.json"
     if baseline_file.exists():
         with open(baseline_file, 'r') as f:
             data['baseline'] = json.load(f)

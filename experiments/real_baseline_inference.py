@@ -501,11 +501,20 @@ class RealBaselineEvaluator:
             # Simple centroid loading (simplified for evaluation)
             for layer_idx in range(min(5, self.model.config.num_hidden_layers)):  # Load into first few layers
                 try:
-                    if hasattr(manager.layers[layer_idx], 'centroids'):
-                        manager.layers[layer_idx].centroids = centroids.copy()
-                        manager.layers[layer_idx].centroid_counts = np.ones(len(centroids), dtype=int)
-                except:
-                    pass  # Skip if layer doesn't support this
+                    # 确保 layer 初始化了聚类器
+                    if layer_idx in manager.layers:
+                        clusterer = manager.layers[layer_idx]
+                        # 如果是 per-head，这里需要处理 list；假设是 per-layer：
+                        if not isinstance(clusterer, list):
+                            # 转换类型：把 numpy array 转回 list of arrays
+                            clusterer.centroids = [c for c in centroids]
+                            # 初始化 value_centroids (如果你的逻辑需要)
+                            clusterer.value_centroids = [c.copy() for c in centroids]
+
+                            clusterer.centroid_counts = [1] * len(centroids)
+                            clusterer.centroid_weights = [1.0] * len(centroids)
+                except Exception as e:
+                    print(f"Warning: Failed to load centroids for layer {layer_idx}: {e}")
 
             # Attach MP-KVM adapter
             attach_mpkvm_to_hf_llama(
