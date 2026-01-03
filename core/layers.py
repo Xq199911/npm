@@ -91,11 +91,15 @@ def reconstruct_with_centroids(
 
 def _make_positionless_numpy(keys: np.ndarray) -> np.ndarray:
     """
+    DEPRECATED: This function discards crucial phase information and causes semantic loss.
+    Use _align_rotary_positions_numpy instead for proper RoPE handling.
+
     Create a 'positionless' version of key vectors by collapsing rotary pairs'
     phase information into a magnitude on the first component of each pair and
     zeroing the second. This removes position-dependent rotation (RoPE) phase.
     Operates on last dimension pairs: (0,1), (2,3), ...
     """
+    print("[MPKVM][WARN] _make_positionless_numpy is deprecated. Use _align_rotary_positions_numpy for proper RoPE handling.")
     k = keys.copy().astype(np.float32)
     D = k.shape[-1]
     # vectorized across pairs for better numerical stability and speed
@@ -108,6 +112,92 @@ def _make_positionless_numpy(keys: np.ndarray) -> np.ndarray:
         k[..., :even_D:2] = r
         k[..., 1:even_D:2] = 0.0
     return k
+
+
+def _align_rotary_positions_numpy(vec1: np.ndarray, vec2: np.ndarray, base: float = 10000.0) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Align two RoPE-rotated vectors to the same virtual position for similarity computation.
+
+    This preserves phase information while allowing meaningful similarity comparison.
+    Rotates vec2 to align with vec1's virtual position.
+
+    Args:
+        vec1, vec2: (D,) vectors that have been RoPE-rotated
+        base: RoPE base frequency (should match model's RoPE base)
+
+    Returns:
+        Tuple of aligned vectors at the same virtual position
+    """
+    if vec1.shape != vec2.shape:
+        raise ValueError("Vectors must have same shape for alignment")
+
+    D = vec1.shape[-1]
+    aligned_vec1 = vec1.copy().astype(np.float32)
+    aligned_vec2 = vec2.copy().astype(np.float32)
+
+    # Process each rotary pair (x,y)
+    for i in range(0, D-1, 2):
+        x1, y1 = vec1[i], vec1[i+1]
+        x2, y2 = vec2[i], vec2[i+1]
+
+        # Compute magnitudes and phases
+        r1 = np.sqrt(x1*x1 + y1*y1)
+        r2 = np.sqrt(x2*x2 + y2*y2)
+
+        if r1 == 0 or r2 == 0:
+            continue
+
+        theta1 = np.arctan2(y1, x1)
+        theta2 = np.arctan2(y2, x2)
+
+        # Align vec2 to vec1's position by rotating vec2 by (theta1 - theta2)
+        delta_theta = theta1 - theta2
+
+        cos_dt = np.cos(delta_theta)
+        sin_dt = np.sin(delta_theta)
+
+        # Rotate vec2: (x2*cos + y2*sin, -x2*sin + y2*cos) for inverse rotation
+        aligned_vec2[i] = x2 * cos_dt + y2 * sin_dt
+        aligned_vec2[i+1] = -x2 * sin_dt + y2 * cos_dt
+
+    return aligned_vec1, aligned_vec2
+
+
+def compute_rotary_aligned_similarity(keys: np.ndarray, metric: str = "cosine") -> np.ndarray:
+    """
+    Compute pairwise similarities between RoPE-rotated vectors by aligning them to common positions.
+
+    This preserves semantic information while allowing proper clustering.
+
+    Args:
+        keys: (N, D) array of RoPE-rotated key vectors
+        metric: similarity metric ("cosine" or "euclidean")
+
+    Returns:
+        (N, N) similarity matrix
+    """
+    N, D = keys.shape
+    similarities = np.zeros((N, N), dtype=np.float32)
+
+    for i in range(N):
+        for j in range(i, N):  # Only compute upper triangle
+            vec1, vec2 = _align_rotary_positions_numpy(keys[i], keys[j])
+
+            if metric == "cosine":
+                # Cosine similarity on aligned vectors
+                norm1 = np.linalg.norm(vec1)
+                norm2 = np.linalg.norm(vec2)
+                if norm1 > 0 and norm2 > 0:
+                    sim = np.dot(vec1, vec2) / (norm1 * norm2)
+                else:
+                    sim = 0.0
+            else:  # euclidean
+                sim = -np.linalg.norm(vec1 - vec2)  # Negative distance for consistency
+
+            similarities[i, j] = sim
+            similarities[j, i] = sim  # Symmetric
+
+    return similarities
 
 
 class ReconstructedAttention:
@@ -250,10 +340,14 @@ class ReconstructedAttentionTorch:
 
 def _make_positionless_torch(centroids: "torch.Tensor"):
     """
+    DEPRECATED: This function discards crucial phase information and causes semantic loss.
+    Use _align_rotary_positions_torch instead for proper RoPE handling.
+
     Torch equivalent of `_make_positionless_numpy`.
     Collapse rotary pair phase information into magnitude on first component of each pair.
     Vectorized implementation for GPU performance.
     """
+    print("[MPKVM][WARN] _make_positionless_torch is deprecated. Use _align_rotary_positions_torch for proper RoPE handling.")
     torch = _ensure_torch()
     c = centroids.clone()
     if c.ndim != 2:
@@ -270,6 +364,87 @@ def _make_positionless_torch(centroids: "torch.Tensor"):
         c[:, 0:even_D:2] = r
         c[:, 1:even_D:2] = torch.zeros_like(r)
     return c
+
+
+def _align_rotary_positions_torch(vec1: torch.Tensor, vec2: torch.Tensor, base: float = 10000.0) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Torch version: Align two RoPE-rotated vectors to the same virtual position.
+
+    This preserves phase information while allowing meaningful similarity comparison.
+    Rotates vec2 to align with vec1's virtual position.
+    """
+    torch = _ensure_torch()
+    if vec1.shape != vec2.shape:
+        raise ValueError("Vectors must have same shape for alignment")
+
+    D = vec1.shape[-1]
+    aligned_vec1 = vec1.clone()
+    aligned_vec2 = vec2.clone()
+
+    # Process each rotary pair (x,y) - vectorized where possible
+    for i in range(0, D-1, 2):
+        x1, y1 = vec1[i], vec1[i+1]
+        x2, y2 = vec2[i], vec2[i+1]
+
+        # Compute magnitudes and phases
+        r1 = torch.sqrt(x1*x1 + y1*y1)
+        r2 = torch.sqrt(x2*x2 + y2*y2)
+
+        # Skip if either magnitude is zero
+        if r1 == 0 or r2 == 0:
+            continue
+
+        theta1 = torch.atan2(y1, x1)
+        theta2 = torch.atan2(y2, x2)
+
+        # Align vec2 to vec1's position by rotating vec2 by (theta1 - theta2)
+        delta_theta = theta1 - theta2
+
+        cos_dt = torch.cos(delta_theta)
+        sin_dt = torch.sin(delta_theta)
+
+        # Rotate vec2: (x2*cos + y2*sin, -x2*sin + y2*cos) for inverse rotation
+        aligned_vec2 = aligned_vec2.clone()  # Make sure we don't modify in-place unexpectedly
+        aligned_vec2[i] = x2 * cos_dt + y2 * sin_dt
+        aligned_vec2[i+1] = -x2 * sin_dt + y2 * cos_dt
+
+    return aligned_vec1, aligned_vec2
+
+
+def compute_rotary_aligned_similarity_torch(keys: torch.Tensor, metric: str = "cosine") -> torch.Tensor:
+    """
+    Torch version: Compute pairwise similarities between RoPE-rotated vectors by aligning them.
+
+    Args:
+        keys: (N, D) tensor of RoPE-rotated key vectors
+        metric: similarity metric ("cosine" or "euclidean")
+
+    Returns:
+        (N, N) similarity matrix
+    """
+    torch = _ensure_torch()
+    N, D = keys.shape
+    similarities = torch.zeros((N, N), dtype=keys.dtype, device=keys.device)
+
+    for i in range(N):
+        for j in range(i, N):  # Only compute upper triangle
+            vec1, vec2 = _align_rotary_positions_torch(keys[i], keys[j])
+
+            if metric == "cosine":
+                # Cosine similarity on aligned vectors
+                norm1 = torch.norm(vec1)
+                norm2 = torch.norm(vec2)
+                if norm1 > 0 and norm2 > 0:
+                    sim = torch.dot(vec1, vec2) / (norm1 * norm2)
+                else:
+                    sim = torch.tensor(0.0, device=keys.device, dtype=keys.dtype)
+            else:  # euclidean
+                sim = -torch.norm(vec1 - vec2)  # Negative distance for consistency
+
+            similarities[i, j] = sim
+            similarities[j, i] = sim  # Symmetric
+
+    return similarities
 
 """
 Reconstructed attention layer utilities that can query MP-KVM centroids.

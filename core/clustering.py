@@ -51,6 +51,8 @@ class OnlineManifoldClustering:
         threshold_quantile: float = 0.9,
         min_merge_similarity: Optional[float] = None,
         init_preserve_first_n: Optional[int] = None,
+        ema_decay: float = 0.99,  # Exponential Moving Average decay factor
+        use_rotary_alignment: bool = True,  # Use proper RoPE alignment instead of positionless
     ):
         self.dim = dim
         self.metric = metric
@@ -64,6 +66,10 @@ class OnlineManifoldClustering:
         # when initializing from the first compressed batch, optionally preserve the first N items
         # as separate centroids to avoid early global merging (helps maintain diversity).
         self.init_preserve_first_n = int(init_preserve_first_n) if init_preserve_first_n is not None else None
+        # Exponential Moving Average decay factor to prevent centroid freezing
+        self.ema_decay = float(ema_decay)
+        # Use proper RoPE alignment instead of discarding phase information
+        self.use_rotary_alignment = bool(use_rotary_alignment)
         # recent similarity windows used to compute adaptive threshold quantiles
         self._recent_best_sims: List[np.ndarray] = []
 
@@ -208,17 +214,24 @@ class OnlineManifoldClustering:
     def _merge_into_centroid(self, idx: int, key_vec: np.ndarray, value_vec: np.ndarray, weight: float):
         prev_w = float(self.centroid_weights[idx])
         prev_count = int(self.centroid_counts[idx])
-        new_w = prev_w + float(weight)
-        # weighted incremental update of key centroid
-        updated_key = (self.centroids[idx] * prev_w + key_vec * float(weight)) / new_w
+
+        # Use Exponential Moving Average (EMA) to prevent centroid freezing
+        # Formula: centroid = ema_decay * centroid + (1 - ema_decay) * new_vec
+        # This ensures centroids can adapt to semantic drift over time
+        ema_factor = 1.0 - self.ema_decay
+        updated_key = self.ema_decay * self.centroids[idx] + ema_factor * key_vec
         self.centroids[idx] = updated_key
-        # weighted incremental update of value centroid
+
+        # Same EMA update for value centroids
         if idx < len(self.value_centroids):
-            updated_value = (self.value_centroids[idx] * prev_w + value_vec * float(weight)) / new_w
+            updated_value = self.ema_decay * self.value_centroids[idx] + ema_factor * value_vec
             self.value_centroids[idx] = updated_value
         else:
             # Initialize value centroid if not exists
             self.value_centroids.append(value_vec.copy())
+
+        # Update weights using EMA as well
+        new_w = self.ema_decay * prev_w + ema_factor * float(weight)
         self.centroid_weights[idx] = new_w
         self.centroid_counts[idx] = prev_count + 1
 
@@ -229,11 +242,19 @@ class OnlineManifoldClustering:
             C = len(self.centroids)
 
             if self.metric == "cosine":
-                # Vectorized cosine similarity computation
-                cn = _normalize_rows(c)
-                sim_mat = np.dot(cn, cn.T)
-                # Mask diagonal and upper triangle (since similarity is symmetric)
-                sim_mat = np.triu(sim_mat, k=1)
+                if self.use_rotary_alignment:
+                    # Use proper RoPE alignment for similarity computation
+                    from core.layers import compute_rotary_aligned_similarity
+                    sim_mat = compute_rotary_aligned_similarity(c, metric=self.metric)
+                    # Mask diagonal (similarity is already symmetric)
+                    sim_mat = np.triu(sim_mat, k=1)
+                else:
+                    # Fallback to old method (deprecated)
+                    cn = _normalize_rows(c)
+                    sim_mat = np.dot(cn, cn.T)
+                    # Mask diagonal and upper triangle (since similarity is symmetric)
+                    sim_mat = np.triu(sim_mat, k=1)
+
                 # Find the maximum similarity pair
                 if sim_mat.max() > 0:  # Only merge if there are similar pairs
                     max_idx = np.argmax(sim_mat)

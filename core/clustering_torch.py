@@ -29,6 +29,8 @@ class TorchOnlineManifoldCluster:
         dtype: Optional[torch.dtype] = None,
         min_merge_similarity: Optional[float] = None,
         init_preserve_first_n: Optional[int] = None,
+        ema_decay: float = 0.99,  # Exponential Moving Average decay factor
+        use_rotary_alignment: bool = True,  # Use proper RoPE alignment
     ):
         assert distance in ("cosine", "euclidean")
         self.dim = int(dim)
@@ -41,6 +43,8 @@ class TorchOnlineManifoldCluster:
         self.dtype = dtype or torch.float32
         self.min_merge_similarity = float(min_merge_similarity) if min_merge_similarity is not None else None
         self.init_preserve_first_n = int(init_preserve_first_n) if init_preserve_first_n is not None else None
+        self.ema_decay = float(ema_decay)
+        self.use_rotary_alignment = bool(use_rotary_alignment)
 
         self._sums: List[torch.Tensor] = []
         self._counts: List[float] = []
@@ -139,10 +143,19 @@ class TorchOnlineManifoldCluster:
             sum_updates.scatter_add_(0, merge_indices.unsqueeze(-1).expand(-1, self.dim), merge_vectors * merge_weights.unsqueeze(-1))
             count_updates.scatter_add_(0, merge_indices, merge_weights)
 
-            # Apply updates to existing centroids
+            # Apply updates to existing centroids using EMA
             for idx in range(m):
                 if count_updates[idx] > 0:
-                    self._sums[idx] = (self._sums[idx] + sum_updates[idx]).detach()
+                    # Use Exponential Moving Average to prevent centroid freezing
+                    ema_factor = 1.0 - self.ema_decay
+                    current_centroid = self._sums[idx] / (self._counts[idx] + 1e-9)  # Current centroid value
+                    new_contribution = sum_updates[idx] / count_updates[idx]  # New vector to merge
+
+                    # EMA update: centroid = ema_decay * old_centroid + (1-ema_decay) * new_vector
+                    updated_centroid = self.ema_decay * current_centroid + ema_factor * new_contribution
+
+                    # Update stored sum to reflect new centroid
+                    self._sums[idx] = (updated_centroid * (self._counts[idx] + count_updates[idx])).detach()
                     self._counts[idx] = self._counts[idx] + float(count_updates[idx].item())
 
         # Handle creating new centroids (append new ones)
@@ -183,10 +196,17 @@ class TorchOnlineManifoldCluster:
             i, j = divmod(idx, dists.shape[1])
             # If configured, compute cosine similarity and if below threshold, instead merge two smallest-weight centroids
             if self.min_merge_similarity is not None and self.distance == "cosine":
-                # compute similarity matrix
-                cn = _normalize_rows_t(centroids)
-                sim_mat = torch.matmul(cn, cn.T)
-                sim_mat.fill_diagonal_(-float("inf"))
+                if self.use_rotary_alignment:
+                    # Use proper RoPE alignment for similarity computation
+                    from core.layers import compute_rotary_aligned_similarity_torch
+                    sim_mat = compute_rotary_aligned_similarity_torch(centroids, metric=self.distance)
+                    sim_mat.fill_diagonal_(-float("inf"))
+                else:
+                    # Fallback to old method (deprecated)
+                    cn = _normalize_rows_t(centroids)
+                    sim_mat = torch.matmul(cn, cn.T)
+                    sim_mat.fill_diagonal_(-float("inf"))
+
                 max_sim = float(torch.max(sim_mat).item())
                 if max_sim < float(self.min_merge_similarity):
                     # merge two smallest-weight centroids

@@ -9,6 +9,7 @@ import os
 from typing import Any, Optional, Tuple, Dict
 import numpy as np
 from .clustering import OnlineManifoldClustering
+from .clustering_torch import TorchOnlineManifoldCluster
 
 
 class MPKVMManager:
@@ -42,7 +43,11 @@ class MPKVMManager:
         # Store normalized cluster kwargs for later use in dimension resets
         self._cluster_kwargs = cluster_kwargs.copy()
 
-        # Initialize clustering operators
+        # Initialize clustering operators with updated defaults
+        # Use EMA and RoPE alignment by default
+        cluster_kwargs.setdefault('ema_decay', 0.99)
+        cluster_kwargs.setdefault('use_rotary_alignment', True)
+
         for l in range(self.num_layers):
             if self.per_head_clustering:
                 # Per-head clustering: each layer has multiple clusterers (one per head)
