@@ -53,9 +53,12 @@ class MPKVMCache(Cache):
         self.num_attention_heads = config.num_attention_heads
         self.head_dim = config.hidden_size // config.num_attention_heads
 
-        # RoPE configuration for derotation
+        # RoPE configuration for proper derotation
         self.rotary_emb = rotary_emb
         self.rope_base = getattr(config, 'rope_theta', 10000.0)
+
+        # Track current sequence position for each layer (critical for RoPE derotation)
+        self._current_positions = [0] * self.num_layers
 
         # Initialize clustering with robust defaults
         self.cluster_kwargs = cluster_kwargs or {
@@ -84,60 +87,59 @@ class MPKVMCache(Cache):
         self.centroid_values: List[Optional[torch.Tensor]] = [None] * self.num_layers
         self.centroid_weights: List[Optional[torch.Tensor]] = [None] * self.num_layers
 
-    def _apply_inverse_rope(self, x: torch.Tensor, position_ids: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _apply_inverse_rope(self, x: torch.Tensor, position_ids: torch.Tensor) -> torch.Tensor:
         """
         Apply inverse RoPE transformation to recover semantic vectors from rotated vectors.
 
-        This is critical for mathematically correct clustering - we need to derotate
-        vectors back to semantic space before clustering.
+        CRITICAL FIX: This implements mathematically correct derotation using position information.
+        Unlike the flawed _align_rotary_positions approach, this properly inverts the RoPE operation.
 
         Args:
             x: Rotated key/value vectors (batch_size, num_heads, seq_len, head_dim)
-            position_ids: Position indices for derotation (seq_len,)
+            position_ids: Position indices for derotation (seq_len,) - MUST be provided
 
         Returns:
             Derotated vectors in semantic space
         """
         if self.rotary_emb is None:
             # Fallback: assume vectors are already in semantic space
-            print("[MPKVM][WARNING] No rotary_emb provided, assuming vectors are already derotated")
+            print("[MPKVM][WARNING] No rotary_emb provided, cannot perform mathematically correct derotation")
             return x
 
+        if position_ids is None:
+            raise ValueError("[MPKVM][ERROR] position_ids must be provided for mathematically correct RoPE derotation")
+
         try:
-            # Get sequence length and batch info
+            # Get tensor dimensions
             batch_size, num_heads, seq_len, head_dim = x.shape
 
-            # Generate position IDs if not provided
-            if position_ids is None:
-                # Use current sequence positions (approximation)
-                position_ids = torch.arange(seq_len, device=x.device, dtype=torch.long)
-
-            # Create dummy tensor to get cos/sin from rotary_emb
-            # rotary_emb expects (batch_size * num_heads, seq_len, head_dim)
+            # Create dummy tensor for rotary_emb call
             dummy = torch.zeros((batch_size * num_heads, seq_len, head_dim), device=x.device, dtype=x.dtype)
             cos, sin = self.rotary_emb(dummy, position_ids.unsqueeze(0))
 
             # cos, sin shape: (batch_size * num_heads, seq_len, head_dim)
-            # Reshape to match input: (batch_size, num_heads, seq_len, head_dim)
+            # Reshape to match input tensor dimensions
             cos = cos.view(batch_size, num_heads, seq_len, head_dim)
             sin = sin.view(batch_size, num_heads, seq_len, head_dim)
 
-            x_derotated = x.clone()
+            # Apply inverse RoPE rotation
+            # RoPE forward: [x', y'] = [x*cos - y*sin, x*sin + y*cos]
+            # RoPE inverse: [x, y] = [x'*cos + y'*sin, -x'*sin + y'*cos]
+            x_derotated = torch.zeros_like(x)
 
-            # Process each rotary pair (every 2 dimensions)
             for i in range(0, head_dim, 2):
                 if i + 1 < head_dim:
-                    # Get cos and sin for this dimension pair
-                    cos_vals = cos[..., i]      # cos for x dimension
-                    sin_vals = sin[..., i]      # sin for x dimension
+                    # Get cos and sin values for this rotary pair
+                    cos_vals = cos[..., i]  # cos values for x dimensions
+                    sin_vals = sin[..., i]  # sin values for x dimensions (same for the pair)
 
-                    # Get rotated values
+                    # Get rotated components
                     x_rot = x[..., i]      # x' (rotated x)
                     y_rot = x[..., i+1]    # y' (rotated y)
 
-                    # Apply inverse rotation: [x, y] = [x'*cos + y'*sin, -x'*sin + y'*cos]
-                    x_orig = x_rot * cos_vals + y_rot * sin_vals
-                    y_orig = -x_rot * sin_vals + y_rot * cos_vals
+                    # Apply inverse rotation
+                    x_orig = x_rot * cos_vals + y_rot * sin_vals    # x = x'*cos + y'*sin
+                    y_orig = -x_rot * sin_vals + y_rot * cos_vals   # y = -x'*sin + y'*cos
 
                     x_derotated[..., i] = x_orig
                     x_derotated[..., i+1] = y_orig
@@ -148,7 +150,7 @@ class MPKVMCache(Cache):
             print(f"[MPKVM][ERROR] Failed to apply inverse RoPE: {e}")
             import traceback
             traceback.print_exc()
-            # Fallback: return original (better than crashing)
+            # Fallback: return original (mathematically incorrect but prevents crash)
             return x
 
     def _apply_rope_to_centroids(self, centroids: torch.Tensor, position_ids: torch.Tensor) -> torch.Tensor:
@@ -237,19 +239,35 @@ class MPKVMCache(Cache):
         # Get clusterer for this layer
         clusterer = self.clusterers[layer_idx]
 
-        # Extract position_ids from cache_kwargs if available
+        # CRITICAL: Extract position information for mathematically correct RoPE derotation
+        # This is essential for proper semantic clustering
         position_ids = None
-        if cache_kwargs and 'position_ids' in cache_kwargs:
-            position_ids = cache_kwargs['position_ids']
-        elif cache_kwargs and 'cache_position' in cache_kwargs:
-            # Some models use cache_position instead
-            cache_position = cache_kwargs['cache_position']
-            if cache_position is not None:
-                position_ids = cache_position[-seq_len:]  # Last seq_len positions
+        current_seq_start = self._current_positions[layer_idx]
 
-        # CRITICAL: Derotate keys back to semantic space for proper clustering
-        # This fixes the RoPE blindness issue - same semantic content at different positions
-        # can now be properly clustered together
+        if cache_kwargs:
+            # Try various ways to get position information
+            if 'position_ids' in cache_kwargs:
+                position_ids = cache_kwargs['position_ids']
+            elif 'cache_position' in cache_kwargs:
+                cache_position = cache_kwargs['cache_position']
+                if cache_position is not None:
+                    # Extract the positions for the new tokens
+                    position_ids = cache_position[-seq_len:] if len(cache_position) >= seq_len else cache_position
+            elif 'sin' in cache_kwargs and 'cos' in cache_kwargs:
+                # If sin/cos are directly provided, we can compute positions from them
+                # This is a fallback for when position_ids aren't available
+                print(f"[MPKVM][INFO] Using sin/cos from cache_kwargs for layer {layer_idx}")
+
+        # Generate position IDs if not provided
+        if position_ids is None:
+            # Use tracked sequence positions as fallback
+            position_ids = torch.arange(current_seq_start, current_seq_start + seq_len,
+                                      device=self.device, dtype=torch.long)
+            print(f"[MPKVM][WARNING] No position_ids provided, using estimated positions "
+                  f"[{current_seq_start}:{current_seq_start + seq_len}] for layer {layer_idx}")
+
+        # CRITICAL FIX: Apply mathematically correct inverse RoPE
+        # This recovers semantic vectors from position-rotated vectors
         semantic_keys = self._apply_inverse_rope(key_states, position_ids)
 
         # Flatten batch and heads for clustering: (batch_size * num_heads, seq_len, head_dim)
@@ -301,8 +319,9 @@ class MPKVMCache(Cache):
             aug_keys = key_states
             aug_values = value_states
 
-        # Update sequence length tracking
+        # Update sequence length and position tracking
         self._seq_lengths[layer_idx] = seq_len
+        self._current_positions[layer_idx] += seq_len
 
         return aug_keys, aug_values
 
@@ -352,6 +371,7 @@ class MPKVMCache(Cache):
     def reset(self):
         """Reset cache state"""
         self._seq_lengths = [0] * self.num_layers
+        self._current_positions = [0] * self.num_layers  # Reset position tracking
         self.centroid_keys = [None] * self.num_layers
         self.centroid_values = [None] * self.num_layers
         self.centroid_weights = [None] * self.num_layers

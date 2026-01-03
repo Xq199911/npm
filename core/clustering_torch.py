@@ -197,9 +197,11 @@ class TorchOnlineManifoldCluster:
             # If configured, compute cosine similarity and if below threshold, instead merge two smallest-weight centroids
             if self.min_merge_similarity is not None and self.distance == "cosine":
                 if self.use_rotary_alignment:
-                    # Use proper RoPE alignment for similarity computation
-                    from core.layers import compute_rotary_aligned_similarity_torch
-                    sim_mat = compute_rotary_aligned_similarity_torch(centroids, metric=self.distance)
+                    # CRITICAL: RoPE alignment is now handled by MPKVMCache derotation
+                    # The centroids here are already in semantic space, so we can use standard similarity
+                    print("[MPKVM][INFO] Using standard similarity for pre-derotated centroids")
+                    cn = _normalize_rows_t(centroids)
+                    sim_mat = torch.matmul(cn, cn.T)
                     sim_mat.fill_diagonal_(-float("inf"))
                 else:
                     # Fallback to old method (deprecated)

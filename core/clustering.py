@@ -243,10 +243,12 @@ class OnlineManifoldClustering:
 
             if self.metric == "cosine":
                 if self.use_rotary_alignment:
-                    # Use proper RoPE alignment for similarity computation
-                    from core.layers import compute_rotary_aligned_similarity
-                    sim_mat = compute_rotary_aligned_similarity(c, metric=self.metric)
-                    # Mask diagonal (similarity is already symmetric)
+                    # CRITICAL: RoPE alignment is now handled by MPKVMCache derotation
+                    # The centroids here are already in semantic space, so we can use standard similarity
+                    print("[MPKVM][INFO] Using standard similarity for pre-derotated centroids")
+                    cn = _normalize_rows(c)
+                    sim_mat = np.dot(cn, cn.T)
+                    # Mask diagonal and upper triangle (since similarity is symmetric)
                     sim_mat = np.triu(sim_mat, k=1)
                 else:
                     # Fallback to old method (deprecated)

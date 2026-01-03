@@ -368,83 +368,25 @@ def _make_positionless_torch(centroids: "torch.Tensor"):
 
 def _align_rotary_positions_torch(vec1: torch.Tensor, vec2: torch.Tensor, base: float = 10000.0) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Torch version: Align two RoPE-rotated vectors to the same virtual position.
+    DEPRECATED: This function is mathematically incorrect and erases semantic differences.
 
-    This preserves phase information while allowing meaningful similarity comparison.
-    Rotates vec2 to align with vec1's virtual position.
+    It attempts to align RoPE-rotated vectors but actually forces different semantic
+    content (like "King" and "Apple") to have the same angle, making clustering meaningless.
+
+    DO NOT USE. Use MPKVMCache._apply_inverse_rope for proper RoPE handling.
     """
-    torch = _ensure_torch()
-    if vec1.shape != vec2.shape:
-        raise ValueError("Vectors must have same shape for alignment")
-
-    D = vec1.shape[-1]
-    aligned_vec1 = vec1.clone()
-    aligned_vec2 = vec2.clone()
-
-    # Process each rotary pair (x,y) - vectorized where possible
-    for i in range(0, D-1, 2):
-        x1, y1 = vec1[i], vec1[i+1]
-        x2, y2 = vec2[i], vec2[i+1]
-
-        # Compute magnitudes and phases
-        r1 = torch.sqrt(x1*x1 + y1*y1)
-        r2 = torch.sqrt(x2*x2 + y2*y2)
-
-        # Skip if either magnitude is zero
-        if r1 == 0 or r2 == 0:
-            continue
-
-        theta1 = torch.atan2(y1, x1)
-        theta2 = torch.atan2(y2, x2)
-
-        # Align vec2 to vec1's position by rotating vec2 by (theta1 - theta2)
-        delta_theta = theta1 - theta2
-
-        cos_dt = torch.cos(delta_theta)
-        sin_dt = torch.sin(delta_theta)
-
-        # Rotate vec2: (x2*cos + y2*sin, -x2*sin + y2*cos) for inverse rotation
-        aligned_vec2 = aligned_vec2.clone()  # Make sure we don't modify in-place unexpectedly
-        aligned_vec2[i] = x2 * cos_dt + y2 * sin_dt
-        aligned_vec2[i+1] = -x2 * sin_dt + y2 * cos_dt
-
-    return aligned_vec1, aligned_vec2
+    raise DeprecationWarning("_align_rotary_positions_torch is mathematically incorrect. "
+                           "Use MPKVMCache._apply_inverse_rope for proper RoPE handling.")
 
 
 def compute_rotary_aligned_similarity_torch(keys: torch.Tensor, metric: str = "cosine") -> torch.Tensor:
     """
-    Torch version: Compute pairwise similarities between RoPE-rotated vectors by aligning them.
+    DEPRECATED: Uses the mathematically incorrect alignment function.
 
-    Args:
-        keys: (N, D) tensor of RoPE-rotated key vectors
-        metric: similarity metric ("cosine" or "euclidean")
-
-    Returns:
-        (N, N) similarity matrix
+    DO NOT USE. RoPE alignment should be handled by proper inverse rotation in MPKVMCache.
     """
-    torch = _ensure_torch()
-    N, D = keys.shape
-    similarities = torch.zeros((N, N), dtype=keys.dtype, device=keys.device)
-
-    for i in range(N):
-        for j in range(i, N):  # Only compute upper triangle
-            vec1, vec2 = _align_rotary_positions_torch(keys[i], keys[j])
-
-            if metric == "cosine":
-                # Cosine similarity on aligned vectors
-                norm1 = torch.norm(vec1)
-                norm2 = torch.norm(vec2)
-                if norm1 > 0 and norm2 > 0:
-                    sim = torch.dot(vec1, vec2) / (norm1 * norm2)
-                else:
-                    sim = torch.tensor(0.0, device=keys.device, dtype=keys.dtype)
-            else:  # euclidean
-                sim = -torch.norm(vec1 - vec2)  # Negative distance for consistency
-
-            similarities[i, j] = sim
-            similarities[j, i] = sim  # Symmetric
-
-    return similarities
+    raise DeprecationWarning("compute_rotary_aligned_similarity_torch is mathematically incorrect. "
+                           "Use MPKVMCache for proper RoPE-aware clustering.")
 
 """
 Reconstructed attention layer utilities that can query MP-KVM centroids.
