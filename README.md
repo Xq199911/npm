@@ -1,5 +1,9 @@
 # MP-KVM: Manifold-Partitioned Key-Value Memory
 
+## ⚠️ 重要注意事项
+
+**论文复现必须使用真实数据**：所有实验命令都应包含 `--use-real-model` 参数，以确保使用真实的Llama模型数据进行测试。合成数据仅用于快速环境验证。
+
 ##  快速开始
 
 ### 环境准备
@@ -14,19 +18,28 @@ python demo.py
 ls model/Llama-3.1-8B-Instruct/
 ```
 
-### 一键运行所有实验
+### 完整实验流程 (推荐使用真实数据)
 ```bash
-# 使用真实数据运行完整实验 (推荐 - 需要GPU)
+# Step 1: 运行主要实验套件 (使用真实Llama模型数据)
 python run_complete_experiment.py --use-real-model
 
-# 使用合成数据运行完整实验（快速测试用）
-python run_complete_experiment.py
+# Step 2: 运行组件贡献分析实验 (必需 - 生成组件消融数据)
+python experiments/run_ablation_study.py
 
-# 快速测试模式（减少参数，5-10分钟完成）
+# Step 3: 可选 - 运行扩展Needle-in-a-Haystack实验
+python experiments/run_niah.py
+
+# Step 4: 生成论文图表
+python generate_paper_figures.py
+```
+
+### 快速测试模式 (仅用于验证环境)
+```bash
+# 仅用于快速验证代码是否正常运行，不产生论文数据
 python run_complete_experiment.py --quick
 ```
 
-### 分阶段运行实验
+### 分阶段运行实验 (全部使用真实数据)
 ```bash
 # Phase 1: 基准线比较 (Baseline Comparison)
 python run_complete_experiment.py --phase 1 --use-real-model
@@ -37,11 +50,17 @@ python run_complete_experiment.py --phase 2 --use-real-model
 # Phase 3: 压缩实验 (Compression Experiments)
 python run_complete_experiment.py --phase 3 --use-real-model
 
-# Phase 4: 消融研究 (Ablation Studies)
+# Phase 4: 一般消融研究 (General Ablation Studies)
 python run_complete_experiment.py --phase 4 --use-real-model
 
-# Phase 5: 注意力分析 (Attention Analysis)
+# Phase 5: 性能分析 (Performance Profiling)
 python run_complete_experiment.py --phase 5 --use-real-model
+
+# 额外必需: 组件贡献分析 (Component Contribution Analysis)
+python experiments/run_ablation_study.py
+
+# 可选: 扩展Needle-in-a-Haystack实验
+python experiments/run_niah.py
 ```
 
 ### 生成论文图表
@@ -50,17 +69,19 @@ python run_complete_experiment.py --phase 5 --use-real-model
 python generate_paper_figures.py
 ```
 
-### 其他常用命令
+### 高级配置选项
 ```bash
+# 跳过GPU性能分析 (节省时间)
+python run_complete_experiment.py --use-real-model --skip-performance
 
-# 跳过性能分析
-python run_complete_experiment.py --phase 5 --skip-performance
-
-# 指定自定义模型路径
+# 使用自定义模型路径
 python run_complete_experiment.py --use-real-model --model-path "path/to/your/model"
 
-# 显示帮助信息
+# 显示所有可用选项
 python run_complete_experiment.py --help
+
+# 仅验证环境 (不产生有效实验数据)
+python run_complete_experiment.py --quick
 ```
 
 ##  项目结构
@@ -95,40 +116,48 @@ MP-KVM/
    - 评估PPL和召回率vs压缩比曲线
    - 输出：`results/compression_sweep/`
 
-4. **Phase 4**: 消融研究
-   - 验证各组件(RoPE、权重、聚类)的贡献
+4. **Phase 4**: 一般消融研究
+   - 测试相似度阈值和质心数量参数
    - 对比不同配置的性能差异
-   - 输出：`results/ablation/`
+   - 输出：`results/ablation/ablation_results.json`
 
 5. **Phase 5**: 注意力分析
    - 分析注意力权重分布和能量补偿效果
    - 生成注意力能量谱图表
    - 输出：`results/attention_analysis/`
 
+6. **组件贡献分析** (必需)
+   - 详细测试四个MP-KVM组件的贡献度
+   - Standard Clustering / w/o Positionless / w/o Energy Compensation / Full MP-KVM
+   - 输出：`results/ablation/ablation_study_results.json`
 
 
-### 学术研究者
+
+### 学术研究者 (论文复现)
 ```bash
-# 完整实验流程 (论文复现)
+# 完整实验流程 - 复现论文所有结果
 python run_complete_experiment.py --use-real-model
+python experiments/run_ablation_study.py
+python experiments/run_niah.py
+python generate_paper_figures.py
 
-# 只验证关键结果
+# 只验证核心压缩实验结果
 python run_complete_experiment.py --phase 3 --use-real-model
 
-# 生成论文图表
+# 生成论文图表 (需先完成以上实验)
 python generate_paper_figures.py
 ```
 
 ### 开发者/工程师
 ```bash
-# 快速验证代码
+# 快速验证代码运行 (使用合成数据)
 python run_complete_experiment.py --quick
 
-# 性能基准测试
+# 性能基准测试 (使用真实数据)
 python run_complete_experiment.py --phase 5 --use-real-model
 
-# 自定义配置测试
-python run_complete_experiment.py --phase 1 --model-path "your/model"
+# 自定义模型测试
+python run_complete_experiment.py --phase 1 --use-real-model --model-path "your/model"
 ```
 
 ### 新手用户
@@ -136,12 +165,17 @@ python run_complete_experiment.py --phase 1 --model-path "your/model"
 # 环境验证
 python demo.py
 
-# 快速上手
+# 快速上手验证 (合成数据)
 python run_complete_experiment.py --quick
 
-# 分阶段学习
-python run_complete_experiment.py --phase 1  # 从基准线开始
-python run_complete_experiment.py --phase 2  # 然后可视化
+# 完整实验运行 (真实数据 - 推荐)
+python run_complete_experiment.py --use-real-model
+python experiments/run_ablation_study.py
+python generate_paper_figures.py
+
+# 分阶段学习 (真实数据)
+python run_complete_experiment.py --phase 1 --use-real-model  # 基准线比较
+python run_complete_experiment.py --phase 2 --use-real-model  # 流形可视化
 ```
 
 ##  输出结果
@@ -162,6 +196,8 @@ results/
 │   ├── random_eviction_results.json
 │   └── streamingllm_results.json
 ├── ablation/          # Phase 4: 消融研究结果
+│   ├── ablation_results.json      # 一般消融实验
+│   └── ablation_study_results.json # 组件贡献分析 (必需)
 ├── attention_analysis/ # Phase 5: 注意力分析结果
 ├── synthetic/         # 合成数据实验结果
 └── experiment_summary.json  #  完整实验总结

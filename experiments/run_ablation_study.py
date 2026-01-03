@@ -55,7 +55,7 @@ def run_ablation_configuration(config_name: str, config: Dict[str, Any]) -> Dict
 
     # Initialize clustering based on configuration
     cluster = OnlineManifoldClustering(
-        dim=config["dim"],
+        dim=keys.shape[1],  # Use actual dimension from extracted KV vectors
         window_size=config["window_size"],
         max_memory_size=config["max_memory_size"],
         max_centroids=config["max_centroids"],
@@ -105,7 +105,7 @@ def main():
     # Base configuration
     base_config = {
         "total_tokens": 16000,
-        "dim": 128,
+        "dim": 1024,  # Will be overridden by actual KV dimension
         "n_clusters": 20,
         "cluster_std": 0.5,
         "n_needles": 40,
