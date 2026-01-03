@@ -152,77 +152,133 @@ def generate_manifold_visualization():
         traceback.print_exc()
         plt.close('all')
 
+
 def generate_needle_heatmap():
     """Generate Figure 2: Needle-in-a-Haystack Performance Heatmap."""
     print("Generating Figure 2: Needle-in-a-Haystack Performance Heatmap...")
 
-    # Try to load needle data from baseline comparison results
-    needle_data = {}
-    data = load_results_data()
+    import os
+    import json
+    import glob
+    import numpy as np
+    import matplotlib.pyplot as plt
 
-    # First, try to load from dedicated needle experiments
+    # Container for all aggregated data
+    # Structure: {'MethodName': [result_dict_1, result_dict_2, ...]}
+    needle_data = {}
+
+    # 1. Robust Data Loading: Scan all JSON files in results/needles/
     if os.path.exists('results/needles/'):
         try:
-            import glob
             needle_files = glob.glob('results/needles/*.json')
+            print(f"Found {len(needle_files)} result files in results/needles/")
+
             for file_path in needle_files:
-                with open(file_path, 'r') as f:
-                    method_data = json.load(f)
-                    method_name = method_data.get('method', 'unknown')
-                    needle_data[method_name] = method_data
+                try:
+                    with open(file_path, 'r') as f:
+                        content = json.load(f)
+
+                    # Normalize content into a list of results
+                    results_list = []
+
+                    # Case A: Dict with 'results' key (standard run_niah.py output)
+                    if isinstance(content, dict) and 'results' in content and isinstance(content['results'], list):
+                        results_list = content['results']
+
+                    # Case B: The file is a list of results directly (run_baseline_comparison output style)
+                    elif isinstance(content, list):
+                        results_list = content
+
+                    # Case C: Single result dict
+                    elif isinstance(content, dict) and ('recall' in content or 'needle_recall' in content):
+                        results_list = [content]
+
+                    # Process the list and aggregate by method
+                    for res in results_list:
+                        # Extract method name
+                        raw_method = res.get('method', 'unknown')
+
+                        # Normalize keys for consistency
+                        # Map various length keys to 'total_tokens'
+                        if 'total_tokens' not in res:
+                            if 'sequence_length' in res:
+                                res['total_tokens'] = res['sequence_length']
+                            elif 'context_length' in res:
+                                res['total_tokens'] = res['context_length']
+                            else:
+                                res['total_tokens'] = 0  # Fallback
+
+                        # Map various recall keys to 'recall'
+                        if 'recall' not in res:
+                            if 'needle_recall' in res:
+                                res['recall'] = res['needle_recall']
+                            elif 'recall_mean' in res:
+                                res['recall'] = res['recall_mean']
+                            else:
+                                res['recall'] = 0.0
+
+                        # Map depth keys to 'needle_depth'
+                        if 'needle_depth' not in res:
+                            if 'depth_percent' in res:
+                                res['needle_depth'] = res['depth_percent']
+                            elif 'depth' in res:
+                                res['needle_depth'] = res['depth']
+                            else:
+                                res['needle_depth'] = 0.5  # Default if depth is missing (e.g. baseline average)
+
+                        if raw_method not in needle_data:
+                            needle_data[raw_method] = []
+                        needle_data[raw_method].append(res)
+
+                except Exception as e:
+                    print(f"Warning: Failed to load {file_path}: {e}")
+
         except Exception as e:
-            print(f"Warning: Could not load needle experiment data: {e}")
+            print(f"Warning: Error globbing needle data: {e}")
 
-    # If no dedicated needle data, extract from baseline comparison results
-    if not needle_data and 'baseline' in data and data['baseline']:
-        print("Using needle data from baseline comparison results...")
-        try:
-            baseline_data = data['baseline']
-            # Extract needle performance from baseline results
-            # Assume baseline results contain needle recall information
-            for result in baseline_data:
-                method_name = result.get('method', 'unknown')
-                if 'recall' in result:
-                    needle_data[method_name] = {
-                        'method': method_name,
-                        'recall': result['recall'],
-                        'compression_ratio': result.get('compression_ratio', 1.0),
-                        'sequence_length': result.get('total_tokens', 8000)
-                    }
-        except Exception as e:
-            print(f"Warning: Could not extract needle data from baseline: {e}")
-
-    if not needle_data:
-        print("SKIPPING: Figure 2 requires needle experiment data.")
-        print("   Missing: baseline comparison results with needle data")
-        print("   Run Phase 1 (baseline experiments) first to generate this data.")
-        return
-
-    # Check if we have data for required methods (handle name mapping)
+    # 2. Name Mapping and Filtering
     required_methods = ['Full Cache', 'H2O', 'StreamingLLM', 'MP-KVM']
+
+    # Map from various code names to display names
     name_mapping = {
         'No Compression': 'Full Cache',
+        'NoCompressionBaseline': 'Full Cache',
         'H2O (Heavy-Hitter)': 'H2O',
+        'H2OBaseline': 'H2O',
         'StreamingLLM': 'StreamingLLM',
-        'MP-KVM (Ours)': 'MP-KVM'
+        'StreamingLLMBaseline': 'StreamingLLM',
+        'MP-KVM (Ours)': 'MP-KVM',
+        'MPKVMBaseline': 'MP-KVM',
+        'MP-KVM': 'MP-KVM'
     }
 
-    # Apply name mapping to needle_data keys
-    mapped_needle_data = {}
-    for actual_name, mapped_name in name_mapping.items():
-        if actual_name in needle_data:
-            mapped_needle_data[mapped_name] = needle_data[actual_name]
+    # Apply mapping
+    mapped_data = {}
+    for raw_name, results in needle_data.items():
+        # Clean up name (handle potential underscores vs spaces)
+        clean_name = raw_name
 
-    available_methods = [m for m in required_methods if m in mapped_needle_data]
-    needle_data = mapped_needle_data  # Use mapped data
+        target_name = name_mapping.get(clean_name, clean_name)
 
-    if len(available_methods) < len(required_methods):
-        missing = [m for m in required_methods if m not in available_methods]
-        print(f"SKIPPING: Missing data for methods: {missing}")
+        # Also try keys from mapping that might match partially
+        if target_name not in required_methods:
+            for map_k, map_v in name_mapping.items():
+                if map_k in clean_name:
+                    target_name = map_v
+                    break
+
+        if target_name in required_methods:
+            if target_name not in mapped_data:
+                mapped_data[target_name] = []
+            mapped_data[target_name].extend(results)
+
+    if not mapped_data:
+        print("SKIPPING: No valid needle data found for required methods.")
         return
 
-    print(f"Found needle data for {len(available_methods)} methods")
+    print(f"Processing data for: {list(mapped_data.keys())}")
 
+    # 3. Plotting
     # Define the grid: sequence lengths vs needle depths
     seq_lengths = [8000, 16000, 32000, 64000]  # Context lengths
     needle_depths = [0.0, 0.25, 0.5, 0.75, 1.0]  # Needle insertion depths (0-100%)
@@ -231,91 +287,69 @@ def generate_needle_heatmap():
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
     axes = axes.flatten()
 
-    for idx, (method, ax) in enumerate(zip(required_methods, axes)):
-        print(f"  Processing {method}...")
+    methods_to_plot = [m for m in required_methods if m in mapped_data]
 
-        # Create recall matrix for this method
+    for idx, (method, ax) in enumerate(zip(methods_to_plot, axes[:len(methods_to_plot)])):
+        print(f"  Plotting heatmap for {method}...")
+
+        results = mapped_data[method]
         recall_matrix = np.zeros((len(seq_lengths), len(needle_depths)))
-        data_points = 0
-        # Support both detailed needle experiment files (with 'results' list)
-        # and baseline-derived single-record summaries (with 'recall' field).
-        method_results = []
-        if method in needle_data:
-            entry = needle_data[method]
-            if isinstance(entry, dict) and 'results' in entry:
-                method_results = entry['results']
-            elif isinstance(entry, dict) and 'recall' in entry:
-                # construct a single result record from baseline summary
-                seq_len = entry.get('sequence_length', entry.get('total_tokens', 0))
-                recall = entry.get('recall', entry.get('needle_recall', 0.0))
-                method_results = [{
-                    'total_tokens': seq_len,
-                    'depth_percent': 0.0,
-                    'needle_recall': recall
-                }]
 
-        for result in method_results:
-            seq_len = result.get('context_length', result.get('total_tokens', result.get('total_tokens', 0)))
-            depth = result.get('needle_depth', result.get('depth_percent', 0.0))
-            recall = result.get('recall', result.get('needle_recall', 0.0))
+        # Fill matrix
+        points_found = 0
+        for res in results:
+            sl = res['total_tokens']
+            dp = res['needle_depth']
+            rc = res['recall']
 
-            # Find closest matches in our grid
-            seq_idx = np.argmin([abs(sl - seq_len) for sl in seq_lengths])
-            depth_idx = np.argmin([abs(d - depth) for d in needle_depths])
+            # Find nearest grid points
+            s_idx = (np.abs(np.array(seq_lengths) - sl)).argmin()
+            d_idx = (np.abs(np.array(needle_depths) - dp)).argmin()
 
-            if seq_idx < len(seq_lengths) and depth_idx < len(needle_depths):
-                recall_matrix[seq_idx, depth_idx] = recall
-                data_points += 1
+            # Only fill if reasonably close
+            if abs(seq_lengths[s_idx] - sl) < 2000:  # Tolerance for length
+                recall_matrix[s_idx, d_idx] = rc
+                points_found += 1
 
-        if data_points == 0:
-            print(f"    Warning: No data points found for {method}")
-            continue
-
-        # Plot heatmap for this method
+        # Plot heatmap
         im = ax.imshow(recall_matrix, cmap='RdYlBu_r', aspect='auto', vmin=0, vmax=1.0)
-        ax.set_title(f'{method} Performance\n({data_points} data points)', fontsize=14, fontweight='bold')
+        ax.set_title(f'{method}\n({points_found} data points)', fontsize=14, fontweight='bold')
 
-        # Set labels
-        if idx >= 2:  # Bottom row
-            ax.set_xlabel('Needle Depth', fontsize=12)
-        if idx % 2 == 0:  # Left column
-            ax.set_ylabel('Context Length', fontsize=12)
-
-        # Set tick labels
+        # Ticks and Labels
         ax.set_xticks(range(len(needle_depths)))
         ax.set_yticks(range(len(seq_lengths)))
         ax.set_xticklabels([f'{d:.0%}' for d in needle_depths])
-        ax.set_yticklabels([f'{sl//1000}K' for sl in seq_lengths])
+        ax.set_yticklabels([f'{sl // 1000}K' for sl in seq_lengths])
 
-    # Add colorbar
+        if idx >= 2:
+            ax.set_xlabel('Needle Depth', fontsize=12)
+        if idx % 2 == 0:
+            ax.set_ylabel('Context Length', fontsize=12)
+
+    # Clean up unused axes
+    for i in range(len(methods_to_plot), 4):
+        fig.delaxes(axes[i])
+
+    # Add shared colorbar
     cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
     cbar = fig.colorbar(im, cax=cbar_ax)
-    cbar.set_label('Needle Recovery Rate', fontsize=12, fontweight='bold')
+    cbar.set_label('Needle Recall Rate', fontsize=12, fontweight='bold')
 
-    # Add overall title
     fig.suptitle('Figure 2: Needle-in-a-Haystack Performance Across Methods\n'
-                'Real Experimental Data Shows MP-KVM Maintains High Recall',
-                fontsize=16, fontweight='bold', y=0.98)
+                 'Recall Rate vs Context Length and Needle Insertion Depth',
+                 fontsize=16, fontweight='bold', y=0.98)
 
-    plt.tight_layout(rect=[0, 0, 0.9, 0.95])
-    plt.savefig('results/figures/needle_heatmap.png', dpi=300, bbox_inches='tight')
+    # Try saving with tight_layout, catch warnings
+    try:
+        plt.tight_layout(rect=[0, 0, 0.9, 0.95])
+    except UserWarning:
+        pass
+
+    save_path = 'results/figures/needle_heatmap.png'
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
     plt.close()
 
-    print("+ Saved: results/figures/needle_heatmap.png")
-    fig.suptitle('Figure 2: Needle-in-a-Haystack Performance Across Methods\n'
-                'Recall Rate vs Context Length and Needle Insertion Depth',
-                fontsize=16, fontweight='bold', y=0.98)
-
-    # Add colorbar
-    cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
-    cbar = plt.colorbar(im, cax=cbar_ax)
-    cbar.set_label('Recall Rate', rotation=270, labelpad=20, fontsize=12, fontweight='bold')
-
-    plt.tight_layout(rect=[0, 0, 0.9, 0.95])
-    plt.savefig('results/figures/needle_heatmap.png', dpi=300, bbox_inches='tight')
-    plt.close()
-
-    print("+ Saved: results/figures/needle_heatmap.png")
+    print(f"+ Saved: {save_path}")
 
 def generate_performance_curve():
     """Generate Figure 3: Compression Rate vs Performance Curve - Extreme compression analysis."""

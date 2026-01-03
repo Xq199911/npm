@@ -3,23 +3,19 @@ Ablation script: vary similarity_threshold and max_centroids and measure needles
 Saves CSV and plots to output directory.
 """
 from __future__ import annotations
-
 import argparse
 import json
 import os
 import sys
 import matplotlib.pyplot as plt
-import numpy as np
-
-# Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from core.clustering import OnlineManifoldClustering
 from data.needles.run_niah import evaluate_recall
 from run_real_model_experiment import setup_model_and_tokenizer, create_long_context_text, RealModelKVExtractor
 import math
 import torch
 import numpy as np
+from typing import Optional, Dict
 
 
 def compute_ppl_with_compression(model, tokenizer, device, eval_text: str,
@@ -116,7 +112,8 @@ def compute_ppl_on_model(model, tokenizer, device, eval_text: str, max_length: i
                                        use_compression=False)
 
 
-def run_single(keys, values, needles, similarity_threshold: float, max_centroids: int, args, model=None, tokenizer=None, device=None):
+def run_single(keys, values, needles, similarity_threshold: float, max_centroids: int, args, model=None, tokenizer=None,
+               device=None):
     cluster = OnlineManifoldClustering(
         dim=keys.shape[1],
         window_size=args.window_size,
@@ -128,7 +125,12 @@ def run_single(keys, values, needles, similarity_threshold: float, max_centroids
     n = keys.shape[0]
     bs = args.batch_size
     for i in range(0, n, bs):
-        cluster.add(keys[i : i + bs], values[i : i + bs])
+        cluster.add(keys[i: i + bs], values[i: i + bs])
+
+    # === 强制压缩缓冲区中的剩余数据 ===
+    cluster.force_compress_all()
+    # ==========================================
+
     centroids, counts, weights = cluster.get_centroids()
     recall = evaluate_recall(centroids, needles, threshold=args.recall_threshold)
     result = {"similarity_threshold": similarity_threshold,
